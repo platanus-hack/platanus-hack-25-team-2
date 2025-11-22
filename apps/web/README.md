@@ -4,11 +4,13 @@ Aplicación web construida con Next.js que permite capturar fotos desde la webca
 
 ## 🚀 Características
 
-- **Captura de fotos en tiempo real** desde la webcam
-- **Detección facial automática** usando face-api.js
-- **Reconocimiento facial** comparando con base de datos en Supabase
+- **Verificación automática cada 5 segundos** - No requiere interacción manual
+- **Detección facial en tiempo real** usando face-api.js
+- **Reconocimiento facial continuo** comparando con base de datos en Supabase
+- **Panel de información en vivo** - Muestra resultados en tiempo real
+- **Exposición de cámara optimizada** para mejor captura
 - **API Routes integradas** para procesamiento en el servidor
-- **UI moderna y responsiva** con Tailwind CSS
+- **UI moderna y responsiva** con Tailwind CSS (desktop y móvil)
 - **Sin necesidad de backend separado** - todo integrado en Next.js
 
 ## 📋 Requisitos Previos
@@ -84,11 +86,13 @@ Busca coincidencias faciales en la base de datos.
 
 ## 🎯 Cómo Funciona
 
-1. **Captura**: El usuario permite acceso a la cámara y se captura una foto cuando se detecta un rostro
-2. **Procesamiento Cliente**: face-api.js procesa la imagen en el navegador y extrae un descriptor facial (128 dimensiones)
-3. **Envío al Servidor**: El descriptor se envía a la API Route `/api/match`
-4. **Comparación**: El servidor compara el descriptor con todos los rostros en Supabase usando distancia euclidiana
-5. **Resultado**: Se retorna el mejor match si la distancia está por debajo del threshold
+1. **Detección Continua**: La cámara detecta rostros en tiempo real cada segundo
+2. **Verificación Automática**: Cada 5 segundos, si hay un rostro detectado, se realiza una verificación automática
+3. **Procesamiento Cliente**: face-api.js procesa la imagen en el navegador y extrae un descriptor facial (128 dimensiones)
+4. **Envío al Servidor**: El descriptor se envía a la API Route `/api/match`
+5. **Comparación**: El servidor compara el descriptor con todos los rostros en Supabase usando distancia euclidiana
+6. **Resultado en Tiempo Real**: Se muestra el resultado en el panel lateral con información completa de la persona
+7. **Ciclo Continuo**: El proceso se repite automáticamente cada 5 segundos mientras haya un rostro detectado
 
 ## 🔧 Configuración
 
