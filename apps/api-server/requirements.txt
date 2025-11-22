@@ -8,3 +8,6 @@ pillow
 python-multipart
 requests
 
+# Opcional: Para embeddings de más dimensiones (256, 512, etc.)
+# deepface  # Descomentar para usar add_deepface_embeddings.py
+

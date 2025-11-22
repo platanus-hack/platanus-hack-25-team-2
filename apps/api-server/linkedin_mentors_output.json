@@ -1,0 +1,654 @@
+[
+  {
+    "username": "profile_1",
+    "linkedin_url": "https://www.linkedin.com/in/hielo-cadiz",
+    "scraped_at": "2025-11-22 18:42:03",
+    "name": "Andrés Felipe Cádiz Vidal",
+    "headline": "Senior Scientist @ Uber",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C4D03AQF0YcT4EDwTTA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1621026674584?e=1765411200&v=beta&t=Rn2n-FDccqxk7RCSngE-nFvCwbMWshQdE8jacUd8cjA",
+    "about": null,
+    "experience": [
+      {
+        "title": "Senior Scientist",
+        "company": "Uber · Jornada completa"
+      },
+      {
+        "title": "Applied Scientist / Machine Learning engineer",
+        "company": "Cornershop by Uber · Jornada completa"
+      },
+      {
+        "title": "Profesor adjunto",
+        "company": "Pontificia Universidad Católica de Chile · Jornada parcial"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Master of Science - MS, Ciencias de la computación"
+      },
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería Civil en Computación, Computación"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_2",
+    "linkedin_url": "https://www.linkedin.com/in/andres-matte",
+    "scraped_at": "2025-11-22 18:42:24",
+    "name": "Andrés Matte",
+    "headline": "Founder @ Kapso: WhatsApp for developers. Antes cofundé Platanus.",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQEoYZzv40iY7A/profile-displayphoto-shrink_200_200/B4EZR27VdoGwAY-/0/1737162053952?e=1765411200&v=beta&t=Ixc3QGY2WYpKhSBTU_-2blbdXxvJHCMXArkLxuTV5tk",
+    "about": null,
+    "experience": [
+      {
+        "title": "Founder",
+        "company": "Kapso · Jornada completa"
+      },
+      {
+        "title": "Cofundador",
+        "company": "Platanus · Jornada completa"
+      },
+      {
+        "title": "Profesor IN4148-1 Startups Chilenas",
+        "company": "Universidad de Chile"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería, Ingeniería Industrial con diploma en Computación"
+      },
+      {
+        "school": "Colegio Cristóbal Colon Melipilla",
+        "degree": "1999 - 2012"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_3",
+    "linkedin_url": "https://www.linkedin.com/in/cdotte",
+    "scraped_at": "2025-11-22 18:42:41",
+    "name": "Cristobal Dotte Silva",
+    "headline": "Head of Engineering @ Buk Finanzas | Helping finance teams save time",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQH9DLiS3NlTZw/profile-displayphoto-scale_200_200/B4EZjAoFhaHoAY-/0/1755578391819?e=1765411200&v=beta&t=PGG_e8gCRqyqXy8TN-NYdaTS7tiQdOW7CWjhnOAeAvs",
+    "about": null,
+    "experience": [
+      {
+        "title": "Head of Engineering | Buk Finanzas",
+        "company": "Buk · Jornada completa"
+      },
+      {
+        "title": "Co-Founder",
+        "company": "Bemmbo · Jornada completa"
+      },
+      {
+        "title": "PV 22-1",
+        "company": "Platanus Ventures · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Universidad de Chile",
+        "degree": "Ingeniería Civil en Computación"
+      },
+      {
+        "school": "Universidade do Porto",
+        "degree": "2019 - 2019"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_4",
+    "linkedin_url": "https://www.linkedin.com/in/daniel-leal-bitran",
+    "scraped_at": "2025-11-22 18:43:03",
+    "name": "Daniel Leal Bitrán",
+    "headline": "Senior Software Engineer at Fintoc",
+    "location": "Área metropolitana de Santiago",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQFGzE2VX5ShGw/profile-displayphoto-scale_200_200/B4EZpKEA_gKYAY-/0/1762179159326?e=1765411200&v=beta&t=odq7c9mTjUGA3ndMzGmlN5F5JW10j2orkP8gICwAass",
+    "about": null,
+    "experience": [
+      {
+        "title": "Fintoc",
+        "company": "4 años 1 mes"
+      },
+      {
+        "title": "Software Engineer",
+        "company": "Con Yappa"
+      },
+      {
+        "title": "NotCo",
+        "company": "1 año 3 meses"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor of Engineering - BE, Computer Science"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_5",
+    "linkedin_url": "https://www.linkedin.com/in/entamburini",
+    "scraped_at": "2025-11-22 18:43:25",
+    "name": "Enzo Tamburini Heinz",
+    "headline": "Cofounder @ Toku",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C4E03AQECWPjayfxlLA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1658168720785?e=1765411200&v=beta&t=oXkZlylGVqI44iELZs4o_pFm8DSr3KYE8pBD3WIE6BA",
+    "about": null,
+    "experience": [
+      {
+        "title": "Toku",
+        "company": "5 años 10 meses"
+      },
+      {
+        "title": "Pontificia Universidad Católica de Chile",
+        "company": "1 año 8 meses"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería, Ingeniería industrial"
+      },
+      {
+        "school": "Universidad Técnica Federico Santa María",
+        "degree": "No obtenido, Ingeniería eléctrica y electrónica"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_6",
+    "linkedin_url": "https://www.linkedin.com/in/fernandoflorenzano",
+    "scraped_at": "2025-11-22 18:43:48",
+    "name": "Fernando Florenzano",
+    "headline": "Design Engineer",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D5603AQFRvR1HouUU6w/profile-displayphoto-scale_200_200/B56ZpfapKhG4Ac-/0/1762537413655?e=1765411200&v=beta&t=KgHSDoutbLiklO1At6XnTF16fTnaU0aR3qdBX-EaDgw",
+    "about": null,
+    "experience": [
+      {
+        "title": "Design Systems International",
+        "company": "Jornada completa · 5 años 4 meses"
+      },
+      {
+        "title": "Adjunct Professor",
+        "company": "Pontificia Universidad Católica de Chile"
+      },
+      {
+        "title": "Investigator",
+        "company": "Instituto Milenio Fundamentos de los Datos"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Master's degree, Computer Science"
+      },
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor's degree, Computer Engineering"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_7",
+    "linkedin_url": "https://www.linkedin.com/in/josefina-hidalgo-jullian-a02625bb",
+    "scraped_at": "2025-11-22 18:44:12",
+    "name": "Josefina Hidalgo Jullian",
+    "headline": "Engineering Manager Lead @ Buk",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHcoa2yW2FIIw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1683304212628?e=1765411200&v=beta&t=zo67XkzYUgILnSFIyqmlCsyrZrKF4O6XU1UASFlQ21w",
+    "about": null,
+    "experience": [
+      {
+        "title": "Buk",
+        "company": "Jornada completa · 5 años 8 meses"
+      },
+      {
+        "title": "Software engineer",
+        "company": "Nursoft · Jornada completa"
+      },
+      {
+        "title": "Software Engineer",
+        "company": "Dictuc"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería Industrial en Computación, Ciencias de la computación"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_8",
+    "linkedin_url": "https://www.linkedin.com/in/ignaciomarquezc",
+    "scraped_at": "2025-11-22 18:44:30",
+    "name": "Ignacio Márquez Covarrubias",
+    "headline": "Co-Founder Plutto (YC S22)",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C4E03AQGVTR-m1o42pw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1662227013037?e=1765411200&v=beta&t=AZa9SdNRHW2dQg9kMGuHkpuOwN5vbnXaBJnbcjaaUZU",
+    "about": null,
+    "experience": [
+      {
+        "title": "Co-Founder & Chief Technology Officer",
+        "company": "Plutto (YC S22) · Jornada completa"
+      },
+      {
+        "title": "Co-Founder & CTO",
+        "company": "Stealth Startup · Jornada completa"
+      },
+      {
+        "title": "Co-Founder & CTO",
+        "company": "Milla Travel · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Y Combinator",
+        "degree": "S22 batch"
+      },
+      {
+        "school": "Platanus",
+        "degree": "20-1 batch"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_9",
+    "linkedin_url": "https://www.linkedin.com/in/jidonoso",
+    "scraped_at": "2025-11-22 18:45:32",
+    "name": "Juan Ignacio Donoso",
+    "headline": "Co-Founder at Buda.com and Platanus",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C5603AQGak04MNZEPXA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1516275004325?e=1765411200&v=beta&t=EGV3_kZbdINeu-6pTzPtSSpIJAAy7c6NsuTco2bb7YQ",
+    "about": null,
+    "experience": [
+      {
+        "title": "Infrastructure/Devops & Co-Founder",
+        "company": "Buda.com · Jornada completa"
+      },
+      {
+        "title": "Developer & Partner",
+        "company": "Platanus"
+      },
+      {
+        "title": "Co-founder",
+        "company": "QueHambre"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor’s Degree, Design"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_10",
+    "linkedin_url": "https://www.linkedin.com/in/nateare",
+    "scraped_at": "2025-11-22 18:45:51",
+    "name": "Nicolás T.",
+    "headline": "Head of Engineering at Fintoc",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQH9rIcGF8vmtQ/profile-displayphoto-scale_200_200/B4EZqeb6_bHUAY-/0/1763594712398?e=1765411200&v=beta&t=QiJLA5dakDjrmpfdeY3v5GMB5Js0zoGG3xvTBog9H9s",
+    "about": null,
+    "experience": [
+      {
+        "title": "Fintoc",
+        "company": "Jornada completa · 5 años 3 meses"
+      },
+      {
+        "title": "Software Engineer",
+        "company": "MACH · Jornada completa"
+      },
+      {
+        "title": "Software Engineer Internship",
+        "company": "Facebook"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Engineer's degree, Computer Science"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_11",
+    "linkedin_url": "https://www.linkedin.com/in/nicolasvegam",
+    "scraped_at": "2025-11-22 18:47:28",
+    "name": "Nico Vega",
+    "headline": "Co-Founder & CTO at Carvuk",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHGXcBz_u6kuA/profile-displayphoto-scale_200_200/B4EZkiGxt6GwAY-/0/1757213826697?e=1765411200&v=beta&t=RHiSxde-5V-62in-O6XMaUXnu5Tq2NaGkRTyexr9ib0",
+    "about": null,
+    "experience": [
+      {
+        "title": "Co-Founder & CTO",
+        "company": "Carvuk · Jornada completa"
+      },
+      {
+        "title": "Batch 4 PV",
+        "company": "Platanus Ventures"
+      },
+      {
+        "title": "Product Engineer",
+        "company": "Xepelin"
+      }
+    ],
+    "education": [
+      {
+        "school": "Politecnico di Torino",
+        "degree": "Master of Science, Management & Engineering"
+      },
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor of Science, Computer Science & Industrial Engineering"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_12",
+    "linkedin_url": "https://www.linkedin.com/in/lopezjuri",
+    "scraped_at": "2025-11-22 18:47:45",
+    "name": "Patricio López Juri",
+    "headline": "Co-Founder & CTO @ Fraccional",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4D03AQH0bFc2Euvk7w/profile-displayphoto-scale_200_200/B4DZgKyFGPG8AY-/0/1752527557576?e=1765411200&v=beta&t=LDAD7sjpYIITwMV4Klc7zWcS-Lt1V3yAljmwKqHT_Tk",
+    "about": null,
+    "experience": [
+      {
+        "title": "CTO",
+        "company": "Fraccional · Autónomo"
+      },
+      {
+        "title": "PV 22-1",
+        "company": "Platanus Ventures"
+      },
+      {
+        "title": "Founder",
+        "company": "Flyyer.io · Autónomo"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Master of Engineering (M.Eng.), Computer Software Engineering"
+      },
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Engineer's degree, Civil Industrial Enginner, Computer Software Engineering"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_13",
+    "linkedin_url": "https://www.linkedin.com/in/sebastian-hevia-ovalle",
+    "scraped_at": "2025-11-22 18:48:06",
+    "name": "Sebastián Hevia Ovalle",
+    "headline": "Co-Founder & CTO @ AgendaPro (YC W21)",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQGh_VGUGojjVg/profile-displayphoto-scale_200_200/B4EZoXEw8zHoAY-/0/1761323716971?e=1765411200&v=beta&t=Ey60okD2pyu9-cCJ2b_Y9qVdUeAEEkCLl7FCsStdO-g",
+    "about": null,
+    "experience": [
+      {
+        "title": "CTO",
+        "company": "AgendaPro (YC W21) · Jornada completa"
+      },
+      {
+        "title": "Software Engineering Internship",
+        "company": "LATAM Airlines · Jornada parcial"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Engineer's degree, Tecnología de la información"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_14",
+    "linkedin_url": "https://www.linkedin.com/in/sergiocampama",
+    "scraped_at": "2025-11-22 18:48:31",
+    "name": "Sergio Campamá",
+    "headline": "Building stuff",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C5603AQG14tPsNTjjlQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1562869665240?e=1765411200&v=beta&t=K7vP-CHEABRJSdI3WPbVVRgvky9Jk-e-f67QRRR-hKg",
+    "about": null,
+    "experience": [
+      {
+        "title": "Chief Technology Officer",
+        "company": "Meta Food Chile"
+      },
+      {
+        "title": "Head of Apple Platforms",
+        "company": "Copilot · Jornada completa"
+      },
+      {
+        "title": "Senior Software Engineer",
+        "company": "Apple · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "MSc., Electrical Engineering"
+      },
+      {
+        "school": "UC Irvine",
+        "degree": "Undergraduate, Engineering"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_15",
+    "linkedin_url": "https://www.linkedin.com/in/stephichau",
+    "scraped_at": "2025-11-22 18:48:53",
+    "name": "Stephanie Chau",
+    "headline": "Senior Software Engineer at Nirvana",
+    "location": "Área metropolitana de Santiago",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C4D03AQHgsWVLhEq16A/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1590519977897?e=1765411200&v=beta&t=WUOOrKYhtmgAHTE8UUc8St4y8FKWT8B7-22L072cdk4",
+    "about": null,
+    "experience": [
+      {
+        "title": "Senior Software Engineer",
+        "company": "Nirvana Insurance · Jornada completa"
+      },
+      {
+        "title": "Senior Software Engineer",
+        "company": "Fintual · Jornada completa"
+      },
+      {
+        "title": "Fleek",
+        "company": "8 meses"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor of Applied Science - BASc, Computer Software Engineering"
+      },
+      {
+        "school": "UC San Diego",
+        "degree": "Student exchange, Computer Science"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_16",
+    "linkedin_url": "https://www.linkedin.com/in/tamara-lues-soto-a8829a14b",
+    "scraped_at": "2025-11-22 18:49:15",
+    "name": "Tamara Lues Soto",
+    "headline": "Developer en Fintual",
+    "location": "Área metropolitana de Santiago",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHDLrTVENWnxQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1713479744266?e=1765411200&v=beta&t=anwvFviuM4ZsocJA_opWQrQAjqPufLE6IFBzKLfYCU0",
+    "about": null,
+    "experience": [
+      {
+        "title": "Developer",
+        "company": "Fintual · Jornada completa"
+      },
+      {
+        "title": "Platanus Software Factory",
+        "company": "1 año 6 meses"
+      },
+      {
+        "title": "Full Stack Developer",
+        "company": "GeoVictoria · Jornada parcial"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniero Civil de Industrias, Diploma Ingeniería en Computación con Major en Diseño e Innovación"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_17",
+    "linkedin_url": "https://www.linkedin.com/in/raimundo-herrera-s/",
+    "scraped_at": "2025-11-22 18:49:39",
+    "name": "Raimundo Herrera",
+    "headline": "General Partner & CTO @ Platanus",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQEJm7fWDSqS4w/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1668610015423?e=1765411200&v=beta&t=6UckaEvRIE9K98UVxmOWfjaIcHNqgu3Za-PEaPJDhVE",
+    "about": null,
+    "experience": [
+      {
+        "title": "General Partner & CTO",
+        "company": "Platanus"
+      },
+      {
+        "title": "Profesor adjunto",
+        "company": "Universidad de Chile · Jornada parcial"
+      },
+      {
+        "title": "Platanus Software Factory",
+        "company": "Jornada completa · 6 años 4 meses"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Magíster en Ciencias de la Ingeniería"
+      },
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniero Civil en Computación"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_18",
+    "linkedin_url": "https://www.linkedin.com/in/paulaenei/",
+    "scraped_at": "2025-11-22 18:50:59",
+    "name": "Paula Enei",
+    "headline": "Co-founder & Managing Partner at Platanus",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQEFRg0-XigXtw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1706028208660?e=1765411200&v=beta&t=ffszJJ6X7YxShZZaSrzsqfVta3XFXoOfy6UFDRAaRP0",
+    "about": null,
+    "experience": [
+      {
+        "title": "Platanus",
+        "company": "Jornada completa · 5 años 11 meses"
+      },
+      {
+        "title": "El Vaso Medio Lleno",
+        "company": "7 años 1 mes"
+      },
+      {
+        "title": "Start-Up Chile",
+        "company": "3 años 1 mes"
+      }
+    ],
+    "education": [
+      {
+        "school": "Seisen International School",
+        "degree": "1992 - 1998"
+      },
+      {
+        "school": "Universidad Diego Portales",
+        "degree": "Psychology"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "profile_19",
+    "linkedin_url": "https://www.linkedin.com/in/rafafdzs/",
+    "scraped_at": "2025-11-22 18:51:19",
+    "name": "Rafael Fernández",
+    "headline": "Software Engineer @ Platanus",
+    "location": "Área metropolitana de Santiago",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D5603AQEIr-DEfoO3Vg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1681833170879?e=1765411200&v=beta&t=IPq1xl7eXC-e23kYXP_2fJXb1WR-5SGCZUfutWSWcy4",
+    "about": null,
+    "experience": [
+      {
+        "title": "Ingeniero de software",
+        "company": "Platanus Ventures · Jornada completa"
+      },
+      {
+        "title": "Fundador",
+        "company": "Syncventory · Autónomo"
+      },
+      {
+        "title": "Trainee",
+        "company": "Platanus · Jornada parcial"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniero Civil en Computación, Ingeniería de software"
+      },
+      {
+        "school": "Technical University of Munich",
+        "degree": "Intercambio Académico"
+      }
+    ],
+    "skills": [],
+    "error": null
+  }
+]

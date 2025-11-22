@@ -206,6 +206,54 @@ python add_faceapi_embeddings_from_storage.py
 - Omite perfiles que ya tienen embedding
 - Maneja errores sin afectar otros perfiles
 
+### `add_deepface_embeddings.py`
+
+Script para calcular embeddings faciales con **más dimensiones** usando DeepFace.
+
+**⚠️ Limitación de face-api.js y face_recognition:**
+
+- `face-api.js` (frontend) y `face_recognition` (Python) están limitados a **128 dimensiones**
+- No es posible aumentar las dimensiones directamente con estos modelos
+
+**Solución: Usar DeepFace con modelos más grandes**
+
+**Uso:**
+
+```bash
+# Instalar DeepFace (primera vez descargará los modelos automáticamente)
+pip install deepface
+
+export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
+python add_deepface_embeddings.py
+```
+
+**Modelos disponibles en DeepFace:**
+
+| Modelo     | Dimensiones | Precisión  | Velocidad  |
+| ---------- | ----------- | ---------- | ---------- |
+| Facenet512 | 512         | ⭐⭐⭐⭐⭐ | Media      |
+| ArcFace    | 512         | ⭐⭐⭐⭐⭐ | Media      |
+| DeepID     | 160         | ⭐⭐⭐⭐   | Rápida     |
+| Dlib       | 128         | ⭐⭐⭐     | Muy rápida |
+| OpenFace   | 128         | ⭐⭐       | Muy rápida |
+| VGG-Face   | 2622        | ⭐⭐⭐⭐   | Lenta      |
+
+**Configuración:**
+
+Editar `add_deepface_embeddings.py` para cambiar el modelo:
+
+```python
+MODEL_NAME = "Facenet512"  # Cambiar aquí: Facenet512, ArcFace, DeepID, etc.
+EMBEDDING_COLUMN = "face_encoding_deepface_512"  # Nombre de columna en DB
+```
+
+**Funcionalidades:**
+
+- Calcula embeddings con modelos de más dimensiones (256, 512, etc.)
+- Soporta múltiples modelos (Facenet512, ArcFace, DeepID, etc.)
+- Guarda en nueva columna de la DB
+- Primera ejecución descarga los modelos automáticamente
+
 ## Cambiar entre Métodos para A/B Testing
 
 ### Opción 1: Variable de Entorno (Recomendado)
