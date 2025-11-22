@@ -1,0 +1,250 @@
+[
+  {
+    "username": "A-PachecoT",
+    "linkedin_url": "https://www.linkedin.com/in/andrepachecot",
+    "scraped_at": "2025-11-22 11:03:36",
+    "name": "André Joaquín Pacheco Taboada",
+    "headline": "CTO y AI Full Stack Engineer en Bilio | CEO en Cofoundy | Makers Fellow | CS en la UNI",
+    "location": "Perú",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQEIsp9FOUM1VQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1727701105276?e=1765411200&v=beta&t=-_YzMcVH9lQzHSWgfwxNVnCclc0DSxDgfgkOxiVheno",
+    "about": null,
+    "experience": [
+      {
+        "title": "Co-Founder & CTO",
+        "company": "Bilio AI · Jornada completa"
+      },
+      {
+        "title": "Co-Founder & CEO",
+        "company": "Cofoundy · Autónomo"
+      },
+      {
+        "title": "Acecom",
+        "company": "Jornada parcial · 1 año 11 meses"
+      }
+    ],
+    "education": [
+      {
+        "school": "Universidad Nacional de Ingeniería",
+        "degree": "Bachelor's degree, Computer Science"
+      },
+      {
+        "school": "Departamento Ingeniería PUCP",
+        "degree": "Artificial Intelligence Summer Camp, Artificial Intelligence"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "AlasAltum",
+    "linkedin_url": "https://www.linkedin.com/in/alonso-utreras-8979b21bb",
+    "scraped_at": "2025-11-22 11:03:55",
+    "name": "Alonso Utreras",
+    "headline": "Solutions Architect | MSc in Computer Science | Software architecture, Data, Computer Graphics",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQFUMz88NNm_yA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1712777847080?e=1765411200&v=beta&t=b-hx6CaAgNewtbA3Kr3h4PnvSlLsVwOLZbHHUql3GYE",
+    "about": null,
+    "experience": [
+      {
+        "title": "Solutions Architect",
+        "company": "Claro Chile S.A. · Jornada completa"
+      },
+      {
+        "title": "Universidad de Chile",
+        "company": "4 años 11 meses"
+      },
+      {
+        "title": "Unreal Engine Developer",
+        "company": "AOne Games · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Universidad de Chile",
+        "degree": "Master of Science - Computer Science, Ciencias de la computación"
+      },
+      {
+        "school": "Universidad de Chile",
+        "degree": "Ingeniero Civil en Computación, Ciencias de la computación"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "AlonsoAlmendras",
+    "linkedin_url": "https://www.linkedin.com/in/alonsoalmendras",
+    "scraped_at": "2025-11-22 11:04:16",
+    "name": "Alonso Almendras",
+    "headline": "Estudiante de Magister en Ciencias, mención Computación, Universidad de Chile",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHYkR2F_y8wag/profile-displayphoto-shrink_200_200/B4EZcPJmL7HcAY-/0/1748305863853?e=1765411200&v=beta&t=g9WL4P2ht5qRXGzSbJF29XSTBCZMQ31dicCOFPlZl88",
+    "about": null,
+    "experience": [
+      {
+        "title": "Universidad de Chile",
+        "company": "3 años"
+      },
+      {
+        "title": "Desarrollador web",
+        "company": "Redpie Spa · Jornada parcial"
+      },
+      {
+        "title": "Desarrollador de software",
+        "company": "Convención Constitucional de Chile · Profesional independiente"
+      }
+    ],
+    "education": [
+      {
+        "school": "Universidad de Chile",
+        "degree": "Magíster en Ciencias, mención Computación"
+      },
+      {
+        "school": "Universidad de Chile",
+        "degree": "Ingeniería civil, Ciencias de la computación"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "AndresGonzalez5",
+    "linkedin_url": "https://www.linkedin.com/in/andres-gonzalez-addison-smith",
+    "scraped_at": "2025-11-22 11:04:41",
+    "name": "Andrés González Addison-Smith",
+    "headline": "Computer Science & Biomedical Engineer | Engineering Manager @ Keirón",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHkLw512iMIkg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1720362088751?e=1765411200&v=beta&t=x2GR9q8i5CQfJXvlVyuMziKB0G9kmp1NKFjK0hPwNEc",
+    "about": null,
+    "experience": [
+      {
+        "title": "Keirón",
+        "company": "Jornada completa · 1 año 5 meses"
+      },
+      {
+        "title": "Software Engineer",
+        "company": "Kredito · Jornada completa"
+      },
+      {
+        "title": "Escuela de Ingeniería UC",
+        "company": "3 años 5 meses"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor's degree, Biomedical/Medical Engineering"
+      },
+      {
+        "school": "Cinco Ranch High School",
+        "degree": "ago. 2011 - may. 2014"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "AriannaYauri",
+    "linkedin_url": "https://www.linkedin.com/in/arianna-yauri-azabache-a2132a2b8",
+    "scraped_at": "2025-11-22 11:04:59",
+    "name": "Arianna Yauri Azabache",
+    "headline": "Presidenta Lead UNI || Ingeniería de telecomunicaciones || 6to ciclo || UNI || Tercio superior || Becaria DAAD || ALP Alumni || Bilingüe || Directora de proyectos CCT 2025",
+    "location": "Perú",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D5603AQFax1zuq5A-fQ/profile-displayphoto-shrink_400_400/B56Zh.hsnsG4As-/0/1754469421162?e=1765411200&v=beta&t=HzCLDXQ3_3iRTr9I8E6Ak63BeiNXhHu37r3FzGPmvGk",
+    "about": null,
+    "experience": [
+      {
+        "title": "Presidenta",
+        "company": "LEAD UNI"
+      },
+      {
+        "title": "Directora de proyectos",
+        "company": "Centro Cultural de Telecomunicaciones - CCT UNI"
+      },
+      {
+        "title": "TechLab",
+        "company": "CTIC - UNI · Jornada parcial"
+      }
+    ],
+    "education": [
+      {
+        "school": "Universidad Nacional de Ingeniería",
+        "degree": "Ingeniería de Telecomunicaciones"
+      },
+      {
+        "school": "ICPNA",
+        "degree": "Ingles Avanzado"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "Billwillerm",
+    "linkedin_url": "https://www.linkedin.com/in/mbillwiller",
+    "scraped_at": "2025-11-22 11:05:20",
+    "name": "Matías Billwiller Tagle",
+    "headline": "Operations | Project Management | Customer Experience",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/C4D03AQHYlT2Mw5rRIA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1594765386704?e=1765411200&v=beta&t=cya9sKyt5o9QYXJH-gVKUkpGz1EccfcUuxzx6U_JI0w",
+    "about": null,
+    "experience": [
+      {
+        "title": "Zubale",
+        "company": "Jornada completa · 3 años 1 mes"
+      },
+      {
+        "title": "Regional Operations Analyst",
+        "company": "Houm · Jornada completa"
+      },
+      {
+        "title": "Ingeniero de proyecto",
+        "company": "iSiete Grupo Inmobiliario · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería Civil Industrial, Gestión de la construcción"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "Borjampm",
+    "linkedin_url": "https://www.linkedin.com/in/borja-marquez-de-la-plata-873a43220",
+    "scraped_at": "2025-11-22 11:05:43",
+    "name": "Borja Márquez de la Plata",
+    "headline": "Ingeniero Civil en Computación de la Pontificia Universidad Católica de Chile",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D5603AQGGNFfx3RpU6w/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1681769356480?e=1765411200&v=beta&t=vZb7HFMcwLFSmrASdCZwB0_A3QKWj8GzTq7fr4TzNco",
+    "about": null,
+    "experience": [
+      {
+        "title": "Computer Science Department - Universidad Católica de Chile",
+        "company": "1 año 5 meses"
+      },
+      {
+        "title": "Facultad de Matemáticas UC",
+        "company": "Jornada parcial · 1 año 5 meses"
+      },
+      {
+        "title": "Práctica Obrera",
+        "company": "Yáneken · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniero Civil en Computación, Computer Science"
+      },
+      {
+        "school": "KU Leuven",
+        "degree": "Intercambio Académico, Economics"
+      }
+    ],
+    "skills": [],
+    "error": null
+  }
+]

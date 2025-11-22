@@ -1,0 +1,10 @@
+face-recognition
+numpy
+supabase
+playwright
+fastapi
+uvicorn[standard]
+pillow
+python-multipart
+requests
+
