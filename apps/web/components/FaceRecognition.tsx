@@ -13,6 +13,7 @@ interface MatchResult {
   match_found: boolean;
   person_name: string | null;
   distance: number | null;
+  confidence?: string | null; // Nivel de confianza como texto (ej: "Medium", "High", "Low")
   threshold: number;
   linkedin_content?: string | null;
   discord_username?: string | null;
@@ -35,12 +36,24 @@ export default function FaceRecognition({
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCheckTime, setLastCheckTime] = useState<number>(0);
   const [timeUntilNextCheck, setTimeUntilNextCheck] = useState<number>(5);
+  const [lastIdentifiedPerson, setLastIdentifiedPerson] = useState<
+    string | null
+  >(null);
   const [faceBox, setFaceBox] = useState<{
     x: number;
     y: number;
     width: number;
     height: number;
   } | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastFaceDetectedTime = useRef<number>(0);
+  const lastFaceBoxRef = useRef<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const stableFaceCountRef = useRef<number>(0);
 
   // Check for camera permissions
   useEffect(() => {
@@ -73,6 +86,7 @@ export default function FaceRecognition({
     if (!modelsLoaded) return;
 
     const detectAndMatch = async () => {
+      // No hacer nada si ya está procesando una petición
       if (!webcamRef.current || isProcessing) return;
 
       const video = webcamRef.current.video;
@@ -85,7 +99,11 @@ export default function FaceRecognition({
         );
 
         if (detections.length > 0) {
+          const now = Date.now();
+          const wasFaceDetected = faceDetected;
+
           setFaceDetected(true);
+          lastFaceDetectedTime.current = now;
 
           // Obtener las coordenadas de la cara detectada
           const detection = detections[0];
@@ -95,37 +113,107 @@ export default function FaceRecognition({
           const videoWidth = video.videoWidth;
           const videoHeight = video.videoHeight;
 
-          setFaceBox({
+          const currentFaceBox = {
             x: (box.x / videoWidth) * 100,
             y: (box.y / videoHeight) * 100,
             width: (box.width / videoWidth) * 100,
             height: (box.height / videoHeight) * 100,
-          });
+          };
 
-          // Verificar si han pasado al menos 5 segundos desde la última verificación
-          const now = Date.now();
+          setFaceBox(currentFaceBox);
+
+          // Detectar si la cara cambió significativamente de posición o tamaño
+          let faceMovedSignificantly = false;
+          if (lastFaceBoxRef.current) {
+            const POSITION_THRESHOLD = 15; // 15% de cambio en posición
+            const SIZE_THRESHOLD = 20; // 20% de cambio en tamaño
+
+            const xDiff = Math.abs(currentFaceBox.x - lastFaceBoxRef.current.x);
+            const yDiff = Math.abs(currentFaceBox.y - lastFaceBoxRef.current.y);
+            const widthDiff = Math.abs(
+              currentFaceBox.width - lastFaceBoxRef.current.width
+            );
+            const heightDiff = Math.abs(
+              currentFaceBox.height - lastFaceBoxRef.current.height
+            );
+
+            faceMovedSignificantly =
+              xDiff > POSITION_THRESHOLD ||
+              yDiff > POSITION_THRESHOLD ||
+              widthDiff > SIZE_THRESHOLD ||
+              heightDiff > SIZE_THRESHOLD;
+
+            if (faceMovedSignificantly) {
+              console.log(
+                "🔄 Face position changed significantly - likely new person"
+              );
+              stableFaceCountRef.current = 0; // Resetear contador de estabilidad
+              setLastIdentifiedPerson(null); // Resetear persona identificada
+            } else {
+              stableFaceCountRef.current++;
+            }
+          } else {
+            // Primera detección
+            stableFaceCountRef.current = 0;
+          }
+
+          lastFaceBoxRef.current = currentFaceBox;
+
+          // Estrategia mejorada:
+          // - Si la cara cambió de posición significativamente, consultar inmediatamente
+          // - Si es una cara nueva (primera detección), esperar a que se estabilice (3 frames)
+          // - Si es la misma persona estable, consultar cada 5 segundos
           const timeSinceLastCheck = now - lastCheckTime;
+          const THROTTLE_SAME_PERSON = 5000; // 5 segundos para la misma persona
+          const MIN_STABLE_FRAMES = 3; // Frames mínimos para considerar cara estable
+          const MIN_TIME_BETWEEN_CHECKS = 1000; // 1 segundo mínimo entre consultas
 
-          if (timeSinceLastCheck >= 5000) {
+          const isFaceStable = stableFaceCountRef.current >= MIN_STABLE_FRAMES;
+          const isFirstDetection = !wasFaceDetected;
+          const canCheck = timeSinceLastCheck >= MIN_TIME_BETWEEN_CHECKS;
+
+          const shouldCheck =
+            canCheck &&
+            (faceMovedSignificantly || // Cara cambió de posición
+              (isFirstDetection && isFaceStable) || // Primera detección y estable
+              (!isFirstDetection &&
+                timeSinceLastCheck >= THROTTLE_SAME_PERSON)); // Throttling normal
+
+          if (shouldCheck && !isProcessing) {
+            console.log("📸 Performing face match...");
             await performFaceMatch();
             setLastCheckTime(now);
           } else {
             // Actualizar contador
-            setTimeUntilNextCheck(
-              Math.ceil((5000 - timeSinceLastCheck) / 1000)
-            );
+            if (!isFaceStable && isFirstDetection) {
+              setTimeUntilNextCheck(0); // Esperando estabilización
+            } else {
+              const remainingTime = Math.max(
+                0,
+                THROTTLE_SAME_PERSON - timeSinceLastCheck
+              );
+              setTimeUntilNextCheck(Math.ceil(remainingTime / 1000));
+            }
           }
         } else {
-          setFaceDetected(false);
-          setMatchResult(null);
-          setFaceBox(null);
+          // Si la cara desaparece, resetear todo inmediatamente
+          if (faceDetected) {
+            console.log("👋 Face disappeared");
+            setFaceDetected(false);
+            setMatchResult(null);
+            setFaceBox(null);
+            setLastIdentifiedPerson(null);
+            lastFaceBoxRef.current = null;
+            stableFaceCountRef.current = 0;
+          }
         }
       } catch (error) {
         console.error("Error detecting faces:", error);
       }
     };
 
-    const interval = setInterval(detectAndMatch, 100); // Más frecuente para seguimiento suave
+    // Reducir frecuencia de detección de 100ms a 300ms para reducir carga
+    const interval = setInterval(detectAndMatch, 300);
     return () => clearInterval(interval);
   }, [modelsLoaded, isProcessing, lastCheckTime]);
 
@@ -133,58 +221,138 @@ export default function FaceRecognition({
   const performFaceMatch = async () => {
     if (!webcamRef.current || isProcessing) return;
 
+    // Cancelar petición anterior si existe
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Crear nuevo AbortController para esta petición
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     setIsProcessing(true);
 
     try {
-      // Capturar screenshot actual
+      // Capturar screenshot actual (ya viene en base64 con prefijo data:image/jpeg;base64,)
       const imageSrc = webcamRef.current.getScreenshot();
       if (!imageSrc) {
         setIsProcessing(false);
         return;
       }
 
-      // Crear un elemento de imagen para procesar con face-api
-      const img = new Image();
-      img.src = imageSrc;
+      console.log("✅ Image captured, sending to API...");
 
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-
-      // Detectar cara y obtener descriptor
-      const detection = await faceapi
-        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks()
-        .withFaceDescriptor();
-
-      if (!detection) {
-        console.log("No face detected in screenshot");
-        setIsProcessing(false);
-        return;
-      }
-
-      console.log("✅ Face descriptor calculated, sending to API...");
-
-      // Enviar descriptor al servidor
+      // Enviar imagen en base64 al servidor con soporte para cancelación
       const response = await fetch("/api/match", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          face_descriptor: Array.from(detection.descriptor),
-          threshold: 0.6,
+          image: imageSrc, // Base64 con prefijo data:image/jpeg;base64,
         }),
+        signal: abortController.signal, // Permitir cancelar la petición
       });
 
-      const result = await response.json();
-      console.log("Match result:", result);
+      // Verificar si la petición fue cancelada
+      if (abortController.signal.aborted) {
+        console.log("Request cancelled");
+        return;
+      }
 
-      setMatchResult(result);
+      const result = await response.json();
+      console.log("Match result:", JSON.stringify(result, null, 2));
+
+      // Adaptar la respuesta del nuevo endpoint al formato esperado por el componente
+      if (result.match) {
+        const currentPersonName = result.match.full_name || null;
+        const personChanged = currentPersonName !== lastIdentifiedPerson;
+
+        // Si cambió la persona, hacer consulta inmediata la próxima vez
+        if (personChanged) {
+          setLastIdentifiedPerson(currentPersonName);
+          // Resetear el tiempo de última verificación para permitir consulta inmediata
+          setLastCheckTime(0);
+        }
+
+        // Capturar cosine_similarity como distance (para cálculos internos)
+        // El endpoint externo envía cosine_similarity (0-1) donde mayor es mejor
+        let distance: number | null = null;
+        if (
+          result.match.cosine_similarity !== undefined &&
+          result.match.cosine_similarity !== null
+        ) {
+          const sim = Number(result.match.cosine_similarity);
+          if (!isNaN(sim)) {
+            // Convertir similarity (mayor es mejor) a distance (menor es mejor)
+            distance = 1 - sim;
+          }
+        } else if (
+          result.match.distance !== undefined &&
+          result.match.distance !== null
+        ) {
+          const dist = Number(result.match.distance);
+          if (!isNaN(dist)) {
+            distance = dist;
+          }
+        }
+
+        // Capturar confidence como texto (ej: "Medium", "High", "Low")
+        const confidenceText =
+          result.match.confidence && typeof result.match.confidence === "string"
+            ? result.match.confidence
+            : null;
+
+        // Pasar todos los campos del perfil que vengan del endpoint externo
+        setMatchResult({
+          match_found: true,
+          person_name: result.match.full_name || null,
+          distance: distance,
+          confidence: confidenceText,
+          threshold: result.match.threshold || result.threshold || 0.6,
+          linkedin_content:
+            result.match.linkedin_content || result.match.about || null,
+          discord_username:
+            result.match.discord_username || result.match.username || null,
+          message: `Match encontrado: ${
+            result.match.full_name || "Persona identificada"
+          }`,
+        });
+      } else if (result.error) {
+        setMatchResult({
+          match_found: false,
+          person_name: null,
+          distance: null,
+          threshold: 0.6,
+          message: result.message || result.error || "No se encontró match",
+        });
+      } else {
+        setMatchResult({
+          match_found: false,
+          person_name: null,
+          distance: null,
+          threshold: 0.6,
+          message: result.message || "No se encontró match",
+        });
+      }
     } catch (error) {
+      // No mostrar error si la petición fue cancelada intencionalmente
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("Request cancelled");
+        return;
+      }
+
       console.error("Error processing face:", error);
+      setMatchResult({
+        match_found: false,
+        person_name: null,
+        distance: null,
+        threshold: 0.6,
+        message: "Error al procesar la imagen",
+      });
     } finally {
       setIsProcessing(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -372,8 +540,7 @@ export default function FaceRecognition({
                       {matchResult.person_name}
                     </h3>
                     <p className="text-white/60 text-xs">
-                      Confianza:{" "}
-                      {((1 - (matchResult.distance || 0)) * 100).toFixed(1)}%
+                      Confianza: {matchResult.confidence || "N/A"}
                     </p>
                   </div>
 
