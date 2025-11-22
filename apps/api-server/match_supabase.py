@@ -82,6 +82,6 @@ def find_match_in_supabase(target_photo_path, threshold=0.6):
         print(f"El más cercano fue {best_match} con distancia {best_dist:.4f} (Umbral: {threshold})")
 
 if __name__ == "__main__":
-    TARGET = "test-photo-2.png" # La foto que el usuario quiere probar
+    TARGET = "test-photo-0.png" # La foto que el usuario quiere probar
     find_match_in_supabase(TARGET)
 

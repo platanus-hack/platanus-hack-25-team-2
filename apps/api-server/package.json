@@ -1,0 +1,13 @@
+{
+  "name": "@face-demo/api-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "python api_server.py",
+    "start": "python api_server.py",
+    "build": "echo 'Python app - no build step required'",
+    "lint": "echo 'Python linting - add flake8/pylint if needed'",
+    "clean": "find . -type d -name '__pycache__' -exec rm -r {} + 2>/dev/null || true"
+  }
+}
+

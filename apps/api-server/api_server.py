@@ -2,7 +2,7 @@ import base64
 import io
 import face_recognition
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
@@ -85,7 +85,7 @@ def root():
     return {
         "message": "Face Recognition API",
         "endpoints": {
-            "/match": "POST - Recibe imagen en base64 y retorna match",
+            "/match": "POST - Recibe imagen como archivo y retorna match",
             "/health": "GET - Estado del servidor"
         }
     }
@@ -111,19 +111,25 @@ def health():
 
 
 @app.post("/match", response_model=MatchResponse)
-def match_face(request: ImageRequest):
+async def match_face(file: UploadFile = File(...), threshold: float = Form(0.6)):
     """
-    Recibe una imagen en base64 y busca el mejor match en Supabase
+    Recibe una imagen como archivo y busca el mejor match en Supabase
     
     Args:
-        request: Objeto con image_base64 (string) y threshold opcional (float, default 0.6)
+        file: Archivo de imagen
+        threshold: Umbral de coincidencia (default 0.6)
     
     Returns:
         MatchResponse con información del match encontrado
     """
     try:
-        # 1. Decodificar imagen desde base64
-        image = decode_base64_image(request.image_base64)
+        # 1. Leer imagen del archivo
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+        
+        # Convertir a RGB si es necesario
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
         
         # 2. Calcular encoding facial
         target_encoding = calculate_face_encoding(image)
@@ -138,7 +144,7 @@ def match_face(request: ImageRequest):
             if not people_db:
                 return MatchResponse(
                     match_found=False,
-                    threshold=request.threshold,
+                    threshold=threshold,
                     message="La base de datos está vacía"
                 )
         except Exception as e:
@@ -169,14 +175,14 @@ def match_face(request: ImageRequest):
                 continue
         
         # 5. Determinar si hay match
-        match_found = best_dist < request.threshold
+        match_found = best_dist < threshold
         
         if match_found:
             return MatchResponse(
                 match_found=True,
                 person_name=best_match,
                 distance=float(best_dist),
-                threshold=request.threshold,
+                threshold=threshold,
                 linkedin_content=match_details.get('linkedin_content'),
                 message=f"Match encontrado: {best_match}"
             )
@@ -185,7 +191,7 @@ def match_face(request: ImageRequest):
                 match_found=False,
                 person_name=best_match if best_match else None,
                 distance=float(best_dist) if best_match else None,
-                threshold=request.threshold,
+                threshold=threshold,
                 message=f"No se encontró match. El más cercano fue {best_match} con distancia {best_dist:.4f}" if best_match else "No se encontraron coincidencias"
             )
     
