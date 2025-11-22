@@ -36,6 +36,8 @@ export default function FaceRecognition({
       try {
         const MODEL_URL = "/models";
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
         setModelsLoaded(true);
         console.log("✅ Face detection models loaded");
       } catch (error) {
@@ -231,14 +233,76 @@ export default function FaceRecognition({
                   </button>
                 </div>
                 <button
-                  onClick={() => {
-                    console.log("📤 Sending photo to API...");
-                    // Here you would send the photo to your API
-                    alert("Foto lista para enviar al servidor");
+                  onClick={async () => {
+                    if (!photo) return;
+
+                    console.log("📤 Processing photo for face recognition...");
+                    try {
+                      // Crear un elemento de imagen para procesar con face-api
+                      const img = new Image();
+                      img.src = photo;
+
+                      await new Promise((resolve) => {
+                        img.onload = resolve;
+                      });
+
+                      // Detectar cara y obtener descriptor
+                      const detection = await faceapi
+                        .detectSingleFace(
+                          img,
+                          new faceapi.TinyFaceDetectorOptions()
+                        )
+                        .withFaceLandmarks()
+                        .withFaceDescriptor();
+
+                      if (!detection) {
+                        alert(
+                          "❌ No se detectó ninguna cara en la imagen capturada."
+                        );
+                        return;
+                      }
+
+                      console.log("✅ Face descriptor calculated");
+
+                      // Enviar descriptor al servidor
+                      const response = await fetch("/api/match", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          face_descriptor: Array.from(detection.descriptor),
+                          threshold: 0.6,
+                        }),
+                      });
+
+                      const result = await response.json();
+                      console.log("Match result:", result);
+
+                      if (result.match_found) {
+                        alert(
+                          `✅ Match encontrado!\n\nPersona: ${
+                            result.person_name
+                          }\nDistancia: ${result.distance?.toFixed(4)}\n\n${
+                            result.linkedin_content
+                              ? result.linkedin_content.substring(0, 200) +
+                                "..."
+                              : ""
+                          }`
+                        );
+                      } else {
+                        alert(`❌ No se encontró match\n\n${result.message}`);
+                      }
+                    } catch (error) {
+                      console.error("Error processing photo:", error);
+                      alert(
+                        "Error al procesar la imagen. Por favor, intenta de nuevo."
+                      );
+                    }
                   }}
                   className="w-full bg-white text-black px-6 py-3 rounded font-medium hover:bg-gray-100 active:bg-gray-200 transition-colors"
                 >
-                  Continuar
+                  Buscar Match
                 </button>
               </div>
             </>

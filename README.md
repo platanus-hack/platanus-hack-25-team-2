@@ -3,6 +3,8 @@
 Monorepo usando Turborepo que contiene:
 
 - **API Server** (Python/FastAPI): Servidor de reconocimiento facial
+- **API Server TS** (TypeScript/Express): Servidor alternativo en Node.js
+- **Web App** (Next.js): Aplicación web con reconocimiento facial
 - **Mobile App** (Expo/React Native): Aplicación móvil
 
 ## Estructura del Proyecto
@@ -10,7 +12,9 @@ Monorepo usando Turborepo que contiene:
 ```
 face-demo/
 ├── apps/
-│   ├── api-server/     # Servidor FastAPI
+│   ├── api-server/     # Servidor FastAPI (Python)
+│   ├── api-server-ts/  # Servidor Express (TypeScript/Node.js)
+│   ├── web/            # App Web Next.js
 │   └── mobile/         # App Expo/React Native
 ├── packages/           # Paquetes compartidos (futuro)
 ├── package.json        # Configuración raíz del monorepo
@@ -49,13 +53,29 @@ npm run dev
 
 ### Ejecutar apps individualmente
 
-**API Server:**
+**API Server (Python/FastAPI):**
 
 ```bash
 cd apps/api-server
 npm run dev
 # o directamente
 python api_server.py
+```
+
+**API Server (TypeScript/Express):**
+
+```bash
+cd apps/api-server-ts
+npm install
+npm run download-models  # Primera vez solamente
+npm run dev
+```
+
+**Web App (Next.js):**
+
+```bash
+cd apps/web
+npm run dev
 ```
 
 **Mobile App:**
@@ -77,9 +97,27 @@ npm start
 
 ## Apps
 
+### Web App (`apps/web`)
+
+Aplicación web construida con Next.js que incluye:
+
+**Características:**
+
+- Captura de fotos desde la webcam
+- Detección facial en tiempo real usando face-api.js
+- Reconocimiento facial integrado con Supabase
+- API Routes para procesamiento en el servidor
+- UI moderna y responsiva
+
+**Endpoints de API:**
+
+- `POST /api/match` - Busca coincidencias faciales
+
+**Puerto:** 3000
+
 ### API Server (`apps/api-server`)
 
-Servidor FastAPI para reconocimiento facial con integración con Supabase.
+Servidor FastAPI para reconocimiento facial con integración con Supabase (alternativa en Python).
 
 **Endpoints:**
 
@@ -112,9 +150,11 @@ Ver más detalles en [apps/mobile/README.md](apps/mobile/README.md)
 ## Tecnologías
 
 - **Monorepo:** Turborepo
-- **API:** FastAPI (Python)
+- **Web:** Next.js, React, TypeScript, face-api.js
+- **API:** FastAPI (Python) - Servidor alternativo
 - **Mobile:** Expo, React Native, TypeScript
 - **Base de datos:** Supabase
+- **Reconocimiento Facial:** face-api.js (cliente), face_recognition (Python)
 
 ## Contribuir
 
