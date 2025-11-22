@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
 import {
@@ -41,35 +41,191 @@ interface MatchResult {
   message: string;
 }
 
+interface FaceBoxPercent {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface TrackedFace {
+  id: string;
+  box: FaceBoxPercent;
+  lastSeen: number;
+  lastMatchTime: number;
+  isProcessing: boolean;
+  matchResult: MatchResult | null;
+}
+
+const MAX_SIMULTANEOUS_FACES = 3;
+const MATCH_THROTTLE_MS = 2000;
+const BOX_MATCH_THRESHOLD = 15;
+const FACE_PADDING_RATIO = 0.15;
+const FACE_PADDING_ATTEMPTS = [
+  FACE_PADDING_RATIO,
+  FACE_PADDING_RATIO * 2,
+  FACE_PADDING_RATIO * 3,
+];
+const createFaceDetectorOptions = () =>
+  new faceapi.TinyFaceDetectorOptions({
+    inputSize: 416,
+    scoreThreshold: 0.3,
+  });
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const getCenter = (box: FaceBoxPercent) => ({
+  x: box.x + box.width / 2,
+  y: box.y + box.height / 2,
+});
+
+const loadImage = (src: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+  });
+
+const getCropDimensions = (
+  width: number,
+  height: number,
+  box: FaceBoxPercent,
+  paddingRatio = FACE_PADDING_RATIO
+) => {
+  const x = (box.x / 100) * width;
+  const y = (box.y / 100) * height;
+  const boxWidth = (box.width / 100) * width;
+  const boxHeight = (box.height / 100) * height;
+
+  const padX = boxWidth * paddingRatio;
+  const padY = boxHeight * paddingRatio;
+
+  const cropX = clamp(x - padX, 0, width);
+  const cropY = clamp(y - padY, 0, height);
+  const cropWidth = clamp(boxWidth + padX * 2, 1, width - cropX);
+  const cropHeight = clamp(boxHeight + padY * 2, 1, height - cropY);
+
+  return {
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight,
+  };
+};
+
+const cropImageToBox = async (
+  image: string | HTMLImageElement,
+  box: FaceBoxPercent,
+  paddingRatio = FACE_PADDING_RATIO
+): Promise<string> => {
+  const img = typeof image === "string" ? await loadImage(image) : image;
+  const { cropX, cropY, cropWidth, cropHeight } = getCropDimensions(
+    img.width,
+    img.height,
+    box,
+    paddingRatio
+  );
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(cropWidth));
+  canvas.height = Math.max(1, Math.round(cropHeight));
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("No se pudo preparar el canvas para recortar la imagen.");
+  }
+
+  ctx.drawImage(
+    img,
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  return canvas.toDataURL("image/jpeg", 0.92);
+};
+
+const computeDescriptorFromImage = async (
+  imageSrc: string,
+  box: FaceBoxPercent
+): Promise<Float32Array | null> => {
+  const detectDescriptor = async (
+    image: string | HTMLImageElement
+  ): Promise<Float32Array | null> => {
+    const img = typeof image === "string" ? await loadImage(image) : image;
+    const detection = await faceapi
+      .detectSingleFace(img, createFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+    return detection?.descriptor || null;
+  };
+
+  let baseImage: HTMLImageElement | null = null;
+
+  for (const paddingRatio of FACE_PADDING_ATTEMPTS) {
+    try {
+      if (!baseImage) {
+        baseImage = await loadImage(imageSrc);
+      }
+      const croppedImage = await cropImageToBox(baseImage, box, paddingRatio);
+      const descriptor = await detectDescriptor(croppedImage);
+      if (descriptor) {
+        return descriptor;
+      }
+    } catch (error) {
+      console.warn("Error detectando descriptor en recorte:", error);
+    }
+  }
+
+  const fallbackDescriptor = await detectDescriptor(baseImage || imageSrc);
+  return fallbackDescriptor || null;
+};
+
+const findClosestFaceIndex = (
+  faces: TrackedFace[],
+  box: FaceBoxPercent
+): number => {
+  const targetCenter = getCenter(box);
+  let closestIndex = -1;
+  let shortestDistance = Number.POSITIVE_INFINITY;
+
+  faces.forEach((face, index) => {
+    const center = getCenter(face.box);
+    const distance = Math.hypot(
+      center.x - targetCenter.x,
+      center.y - targetCenter.y
+    );
+
+    if (distance < shortestDistance) {
+      shortestDistance = distance;
+      closestIndex = index;
+    }
+  });
+
+  return shortestDistance <= BOX_MATCH_THRESHOLD ? closestIndex : -1;
+};
+
 export default function FaceRecognition({
   onPhotoCapture,
 }: FaceRecognitionProps) {
   const webcamRef = useRef<Webcam>(null);
-  const [photo, setPhoto] = useState<string | null>(null);
   const [faceDetected, setFaceDetected] = useState(false);
-  const [hasTried, setHasTried] = useState(false);
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment"
   );
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [lastCheckTime, setLastCheckTime] = useState<number>(0);
+  const [trackedFaces, setTrackedFaces] = useState<TrackedFace[]>([]);
   const [timeUntilNextCheck, setTimeUntilNextCheck] = useState<number>(2);
-  const [faceBox, setFaceBox] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const lastFaceBoxRef = useRef<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
+  const abortControllersRef = useRef<Record<string, AbortController>>({});
+  const faceIdRef = useRef(0);
 
   // Check for camera permissions
   useEffect(() => {
@@ -97,13 +253,12 @@ export default function FaceRecognition({
     loadModels();
   }, []);
 
-  // Face detection and automatic matching loop
+  // Face detection loop tracking up to 3 faces
   useEffect(() => {
     if (!modelsLoaded) return;
 
-    const detectAndMatch = async () => {
-      // No hacer nada si ya está procesando una petición
-      if (!webcamRef.current || isProcessing) return;
+    const detectFaces = async () => {
+      if (!webcamRef.current) return;
 
       const video = webcamRef.current.video;
       if (!video || video.readyState !== 4) return;
@@ -111,225 +266,288 @@ export default function FaceRecognition({
       try {
         const detections = await faceapi.detectAllFaces(
           video,
-          new faceapi.TinyFaceDetectorOptions()
+          createFaceDetectorOptions()
         );
 
-        if (detections.length > 0) {
-          const now = Date.now();
-          const wasFaceDetected = faceDetected;
-
-          setFaceDetected(true);
-
-          // Obtener las coordenadas de la cara detectada
-          const detection = detections[0];
-          const box = detection.box;
-
-          // Calcular posición relativa al video
-          const videoWidth = video.videoWidth;
-          const videoHeight = video.videoHeight;
-
-          const currentFaceBox = {
-            x: (box.x / videoWidth) * 100,
-            y: (box.y / videoHeight) * 100,
-            width: (box.width / videoWidth) * 100,
-            height: (box.height / videoHeight) * 100,
-          };
-
-          setFaceBox(currentFaceBox);
-
-          // Simplificado para face-api: solo seguir la cara sin reaccionar a movimiento
-          lastFaceBoxRef.current = currentFaceBox;
-
-          // Estrategia simple para face-api rápido:
-          // - Consultar inmediatamente la primera vez
-          // - Luego cada 2 segundos para la misma persona
-          // - Si cambia de persona, consultar inmediatamente
-          const timeSinceLastCheck = now - lastCheckTime;
-          const THROTTLE_SAME_PERSON = 2000; // 2 segundos para la misma persona (más rápido)
-          const isFirstDetection = !wasFaceDetected;
-
-          const shouldCheck =
-            isFirstDetection || // Siempre consultar la primera detección
-            timeSinceLastCheck >= THROTTLE_SAME_PERSON; // O después del throttle
-
-          if (shouldCheck && !isProcessing) {
-            console.log("📸 Performing face match...");
-            await performFaceMatch();
-            setLastCheckTime(now);
-          } else {
-            // Actualizar contador para mostrar tiempo hasta próxima consulta
-            const remainingTime = Math.max(
-              0,
-              THROTTLE_SAME_PERSON - timeSinceLastCheck
-            );
-            setTimeUntilNextCheck(Math.ceil(remainingTime / 1000));
-          }
-        } else {
-          // Si la cara desaparece, limpiar UI pero mantener el último resultado
-          if (faceDetected) {
-            console.log("👋 Face disappeared");
-            setFaceDetected(false);
-            setFaceBox(null);
-            lastFaceBoxRef.current = null;
-          }
+        if (!detections.length) {
+          setFaceDetected(false);
+          setTrackedFaces([]);
+          return;
         }
+
+        setFaceDetected(true);
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
+        const now = Date.now();
+
+        setTrackedFaces((prevFaces) => {
+          const remainingFaces = [...prevFaces];
+          const updatedFaces: TrackedFace[] = [];
+
+          const limitedDetections = detections
+            .slice()
+            .sort(
+              (a, b) => b.box.width * b.box.height - a.box.width * a.box.height
+            )
+            .slice(0, MAX_SIMULTANEOUS_FACES);
+
+          limitedDetections.forEach((detection) => {
+            const box = detection.box;
+            const normalizedBox: FaceBoxPercent = {
+              x: (box.x / videoWidth) * 100,
+              y: (box.y / videoHeight) * 100,
+              width: (box.width / videoWidth) * 100,
+              height: (box.height / videoHeight) * 100,
+            };
+
+            const matchIndex = findClosestFaceIndex(
+              remainingFaces,
+              normalizedBox
+            );
+
+            if (matchIndex !== -1) {
+              const matchedFace = remainingFaces.splice(matchIndex, 1)[0];
+              updatedFaces.push({
+                ...matchedFace,
+                box: normalizedBox,
+                lastSeen: now,
+              });
+            } else if (updatedFaces.length < MAX_SIMULTANEOUS_FACES) {
+              updatedFaces.push({
+                id: `face-${faceIdRef.current++}`,
+                box: normalizedBox,
+                lastSeen: now,
+                lastMatchTime: 0,
+                isProcessing: false,
+                matchResult: null,
+              });
+            }
+          });
+
+          return updatedFaces;
+        });
       } catch (error) {
         console.error("Error detecting faces:", error);
       }
     };
 
-    // Frecuencia de detección: 100ms para respuesta rápida
-    const interval = setInterval(detectAndMatch, 100);
+    const interval = setInterval(detectFaces, 100);
     return () => clearInterval(interval);
-  }, [modelsLoaded, isProcessing, lastCheckTime]);
+  }, [modelsLoaded]);
 
-  // Perform face matching
-  const performFaceMatch = async () => {
-    if (!webcamRef.current || isProcessing) return;
+  const updateFaceState = useCallback(
+    (faceId: string, updater: (face: TrackedFace) => TrackedFace) => {
+      setTrackedFaces((prevFaces) =>
+        prevFaces.map((face) => (face.id === faceId ? updater(face) : face))
+      );
+    },
+    []
+  );
 
-    // Cancelar petición anterior si existe
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+  const performFaceMatchForFace = useCallback(
+    async (face: TrackedFace) => {
+      if (!webcamRef.current) return;
 
-    // Crear nuevo AbortController para esta petición
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
-    setIsProcessing(true);
-
-    try {
-      // Capturar screenshot actual (ya viene en base64 con prefijo data:image/jpeg;base64,)
-      const imageSrc = webcamRef.current.getScreenshot();
-      if (!imageSrc) {
-        setIsProcessing(false);
-        return;
+      if (abortControllersRef.current[face.id]) {
+        abortControllersRef.current[face.id].abort();
       }
 
-      console.log(
-        `✅ Image captured, sending to API (${FACE_RECOGNITION_METHOD})...`
-      );
+      updateFaceState(face.id, (prev) => ({
+        ...prev,
+        isProcessing: true,
+      }));
 
-      // Seleccionar endpoint basado en configuración
-      const endpoint =
-        FACE_METHODS[FACE_RECOGNITION_METHOD as keyof typeof FACE_METHODS]
-          ?.endpoint || "/api/match";
+      const abortController = new AbortController();
+      abortControllersRef.current[face.id] = abortController;
 
-      let requestBody: any = {};
+      try {
+        const imageSrc = webcamRef.current.getScreenshot();
+        if (!imageSrc) {
+          throw new Error("No se pudo capturar la imagen del rostro.");
+        }
 
-      // Para método local, calcular descriptor; para externo, enviar imagen
-      if (FACE_RECOGNITION_METHOD === "faceapi_local") {
-        // Crear imagen para face-api
-        const img = new Image();
-        img.src = imageSrc;
+        if (onPhotoCapture) {
+          onPhotoCapture(imageSrc);
+        }
 
-        await new Promise((resolve) => {
-          img.onload = resolve;
+        let requestBody: Record<string, any> = {};
+
+        if (FACE_RECOGNITION_METHOD === "faceapi_local") {
+          const descriptor = await computeDescriptorFromImage(
+            imageSrc,
+            face.box
+          );
+          if (!descriptor) {
+            throw new Error("No se detectó un rostro claro en el recorte.");
+          }
+          requestBody = {
+            face_descriptor: Array.from(descriptor),
+            threshold: 0.6,
+          };
+        } else {
+          const croppedImage = await cropImageToBox(imageSrc, face.box);
+          requestBody = {
+            image: croppedImage,
+            method: FACE_RECOGNITION_METHOD,
+          };
+        }
+
+        const endpoint =
+          FACE_METHODS[FACE_RECOGNITION_METHOD as keyof typeof FACE_METHODS]
+            ?.endpoint || "/api/match";
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+          signal: abortController.signal,
         });
 
-        // Detectar cara y obtener descriptor
-        const detection = await faceapi
-          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks()
-          .withFaceDescriptor();
-
-        if (!detection) {
-          console.log("No face detected in screenshot");
-          setIsProcessing(false);
+        if (abortController.signal.aborted) {
           return;
         }
 
-        requestBody = {
-          face_descriptor: Array.from(detection.descriptor),
-          threshold: 0.6,
-        };
-      } else {
-        // Método externo: enviar imagen en base64
-        requestBody = {
-          image: imageSrc, // Base64 con prefijo data:image/jpeg;base64,
-          method: FACE_RECOGNITION_METHOD,
-        };
+        if (!response.ok) {
+          throw new Error("Respuesta inválida del servidor.");
+        }
+
+        const result = await response.json();
+
+        const formattedResult: MatchResult = result.match_found
+          ? {
+              match_found: true,
+              person_name: result.person_name || null,
+              distance:
+                typeof result.distance === "number" ? result.distance : null,
+              confidence:
+                result.confidence && typeof result.confidence === "string"
+                  ? result.confidence
+                  : null,
+              threshold: result.threshold || 0.6,
+              linkedin_content: result.linkedin_content || null,
+              discord_username: result.discord_username || null,
+              photo_path: result.photo_path || null,
+              message:
+                result.message || `Match encontrado: ${result.person_name}`,
+            }
+          : {
+              match_found: false,
+              person_name: result.person_name || null,
+              distance:
+                typeof result.distance === "number" ? result.distance : null,
+              confidence:
+                result.confidence && typeof result.confidence === "string"
+                  ? result.confidence
+                  : null,
+              threshold: result.threshold || 0.6,
+              candidates: result.candidates || [],
+              linkedin_content: null,
+              discord_username: null,
+              photo_path: null,
+              message: result.message || "No se encontró match",
+            };
+
+        updateFaceState(face.id, (prev) => ({
+          ...prev,
+          matchResult: formattedResult,
+        }));
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        console.error("Error processing face:", error);
+        updateFaceState(face.id, (prev) => ({
+          ...prev,
+          matchResult: {
+            match_found: false,
+            person_name: null,
+            distance: null,
+            confidence: null,
+            threshold: 0.6,
+            message:
+              error instanceof Error
+                ? error.message
+                : "Error al procesar la imagen",
+          },
+        }));
+      } finally {
+        updateFaceState(face.id, (prev) => ({
+          ...prev,
+          isProcessing: false,
+          lastMatchTime: Date.now(),
+        }));
+        delete abortControllersRef.current[face.id];
       }
+    },
+    [updateFaceState]
+  );
 
-      // Enviar al servidor con soporte para cancelación
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-        signal: abortController.signal, // Permitir cancelar la petición
-      });
-
-      // Verificar si la petición fue cancelada
-      if (abortController.signal.aborted) {
-        console.log("Request cancelled");
-        return;
-      }
-
-      const result = await response.json();
-      console.log("Match result:", JSON.stringify(result, null, 2));
-
-      // Manejar respuesta basada en si hay match
-      if (result.match_found) {
-        // Capturar distance/similarity
-        let distance: number | null = result.distance || null;
-
-        // Capturar confidence como texto (ej: "Medium", "High", "Low")
-        const confidenceText =
-          result.confidence && typeof result.confidence === "string"
-            ? result.confidence
-            : null;
-
-        setMatchResult({
-          match_found: true,
-          person_name: result.person_name || null,
-          distance: distance,
-          confidence: confidenceText,
-          threshold: result.threshold || 0.6,
-          linkedin_content: result.linkedin_content || null,
-          discord_username: result.discord_username || null,
-          photo_path: result.photo_path || null,
-          message: result.message || `Match encontrado: ${result.person_name}`,
-        });
-      } else {
-        setMatchResult({
-          match_found: false,
-          person_name: result.person_name || null,
-          distance: result.distance || null,
-          confidence: result.confidence || null,
-          threshold: result.threshold || 0.6,
-          candidates: result.candidates || [],
-          message: result.message || "No se encontró match",
-        });
-      }
-    } catch (error) {
-      // No mostrar error si la petición fue cancelada intencionalmente
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("Request cancelled");
-        return;
-      }
-
-      console.error("Error processing face:", error);
-      setMatchResult({
-        match_found: false,
-        person_name: null,
-        distance: null,
-        threshold: 0.6,
-        message: "Error al procesar la imagen",
-      });
-    } finally {
-      setIsProcessing(false);
-      abortControllerRef.current = null;
+  // Launch individual matching per tracked face with throttling
+  useEffect(() => {
+    if (!trackedFaces.length) {
+      setTimeUntilNextCheck(2);
+      return;
     }
-  };
+
+    const now = Date.now();
+
+    trackedFaces.forEach((face) => {
+      const elapsed = now - face.lastMatchTime;
+      const shouldRun =
+        !face.isProcessing &&
+        (face.matchResult === null || elapsed >= MATCH_THROTTLE_MS);
+
+      if (shouldRun) {
+        performFaceMatchForFace(face);
+      }
+    });
+
+    const remaining = trackedFaces.map((face) => {
+      if (face.lastMatchTime === 0) {
+        return 0;
+      }
+      return Math.max(0, MATCH_THROTTLE_MS - (now - face.lastMatchTime));
+    });
+
+    const nextRefresh = Math.min(...remaining);
+    setTimeUntilNextCheck(Math.max(0, Math.ceil(nextRefresh / 1000)));
+  }, [trackedFaces, performFaceMatchForFace]);
+
+  // Cleanup controllers for faces that disappear
+  useEffect(() => {
+    const currentIds = new Set(trackedFaces.map((face) => face.id));
+    Object.entries(abortControllersRef.current).forEach(
+      ([faceId, controller]) => {
+        if (!currentIds.has(faceId)) {
+          controller.abort();
+          delete abortControllersRef.current[faceId];
+        }
+      }
+    );
+  }, [trackedFaces]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(abortControllersRef.current).forEach((controller) =>
+        controller.abort()
+      );
+    };
+  }, []);
 
   // Toggle camera
   const toggleCamera = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
-    setPhoto(null);
     setFaceDetected(false);
-    setHasTried(false);
+    setTrackedFaces([]);
+    setTimeUntilNextCheck(2);
+    Object.values(abortControllersRef.current).forEach((controller) =>
+      controller.abort()
+    );
+    abortControllersRef.current = {};
   };
 
   // Video constraints con exposición muy reducida
@@ -348,6 +566,7 @@ export default function FaceRecognition({
 
   const currentMethod =
     FACE_METHODS[FACE_RECOGNITION_METHOD as keyof typeof FACE_METHODS];
+  const isAnyProcessing = trackedFaces.some((face) => face.isProcessing);
 
   if (hasPermission === null) {
     return (
@@ -393,7 +612,6 @@ export default function FaceRecognition({
         <div className="absolute top-0 left-0 right-0 z-20 p-4 md:p-6 flex justify-between items-start bg-linear-to-b from-black/80 to-transparent pointer-events-none">
           <div>
             <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              <Scan className="w-5 h-5 text-blue-400" />
               FACE ID SYSTEM
             </h1>
             <div className="flex items-center gap-2 mt-1">
@@ -431,31 +649,34 @@ export default function FaceRecognition({
           {/* Scanlines & CRT Effect Overlay (Removed for minimalism) */}
 
           {/* Face Tracking Visuals */}
-          {faceDetected && faceBox ? (
-            <div
-              className="absolute pointer-events-none transition-all duration-200 ease-linear z-20 border border-white/30 rounded-lg shadow-2xl"
-              style={{
-                left: `${faceBox.x}%`,
-                top: `${faceBox.y}%`,
-                width: `${faceBox.width}%`,
-                height: `${faceBox.height}%`,
-              }}
-            >
-              {/* Simple Corner Indicators */}
-              <div className="absolute -top-1 -left-1 w-3 h-3 border-l-2 border-t-2 border-white" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 border-r-2 border-t-2 border-white" />
-              <div className="absolute -bottom-1 -left-1 w-3 h-3 border-l-2 border-b-2 border-white" />
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 border-r-2 border-b-2 border-white" />
+          {faceDetected && trackedFaces.length > 0 ? (
+            trackedFaces.map((face) => (
+              <div
+                key={face.id}
+                className="absolute pointer-events-none transition-all duration-200 ease-linear z-20 border border-white/30 rounded-lg shadow-2xl"
+                style={{
+                  left: `${face.box.x}%`,
+                  top: `${face.box.y}%`,
+                  width: `${face.box.width}%`,
+                  height: `${face.box.height}%`,
+                }}
+              >
+                {/* Simple Corner Indicators */}
+                <div className="absolute -top-1 -left-1 w-3 h-3 border-l-2 border-t-2 border-white" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 border-r-2 border-t-2 border-white" />
+                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-l-2 border-b-2 border-white" />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-r-2 border-b-2 border-white" />
 
-              {/* Minimal Name Tag */}
-              {matchResult?.match_found && (
-                <div className="absolute -top-8 left-0">
-                  <div className="text-white font-medium text-sm tracking-wide drop-shadow-md">
-                    {matchResult.person_name}
+                {/* Minimal Name Tag */}
+                {face.matchResult?.match_found && (
+                  <div className="absolute -top-8 left-0">
+                    <div className="text-white font-medium text-sm tracking-wide drop-shadow-md">
+                      {face.matchResult.person_name}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            ))
           ) : (
             /* Minimal Idle Indicator */
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-white/10 rounded-2xl flex items-center justify-center z-10">
@@ -479,174 +700,212 @@ export default function FaceRecognition({
       {/* Sidebar / Info Panel */}
       <div className="w-full md:w-[400px] bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-white/10 flex flex-col h-[40vh] md:h-screen transition-all z-30 shadow-2xl">
         <div className="flex-1 overflow-y-auto p-6">
-          {!matchResult ? (
+          {trackedFaces.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
               <Scan className="w-16 h-16 text-white/20 mb-4" />
               <p className="text-white/60 text-sm font-medium">
-                {faceDetected ? "Procesando rostro..." : "Esperando rostro..."}
+                {faceDetected
+                  ? "Procesando rostros..."
+                  : "Esperando rostros..."}
               </p>
               <div className="mt-4 w-32 h-1 bg-white/10 rounded-full overflow-hidden">
-                {isProcessing && (
+                {isAnyProcessing && (
                   <div className="h-full bg-blue-500 animate-indeterminate" />
                 )}
               </div>
             </div>
           ) : (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {/* Primary Match Status */}
-              <div className="bg-neutral-900/50 rounded-xl p-6 border border-white/5">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-white font-semibold text-lg leading-tight">
-                      {matchResult.match_found
-                        ? matchResult.person_name
-                        : "Identidad desconocida"}
-                    </h2>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span
-                        className={`text-xs px-2 py-1 rounded-md font-medium ${
-                          matchResult.match_found
-                            ? "bg-green-500/10 text-green-400"
-                            : "bg-red-500/10 text-red-400"
-                        }`}
-                      >
-                        {matchResult.confidence
-                          ? `${matchResult.confidence}`
-                          : matchResult.message}
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {trackedFaces.map((face, index) => {
+                const result = face.matchResult;
+                return (
+                  <div key={face.id} className="space-y-4">
+                    <div className="flex items-center justify-between text-xs uppercase tracking-wider text-white/40 px-1">
+                      <span>Rostro {index + 1}</span>
+                      <span>
+                        {face.isProcessing
+                          ? "Analizando..."
+                          : result?.match_found
+                          ? "Match confirmado"
+                          : result
+                          ? "Sin match"
+                          : "Pendiente"}
                       </span>
                     </div>
-                  </div>
-                </div>
 
-                {/* Stats Grid */}
-                {matchResult.distance !== null && (
-                  <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5">
-                    <div>
-                      <div className="text-white/40 text-[10px] uppercase font-semibold tracking-wider mb-1">
-                        Similitud
-                      </div>
-                      <div className="text-white font-mono text-base">
-                        {((1 - matchResult.distance) * 100).toFixed(1)}%
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-white/40 text-[10px] uppercase font-semibold tracking-wider mb-1">
-                        Distancia
-                      </div>
-                      <div className="text-white font-mono text-base">
-                        {matchResult.distance.toFixed(4)}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Details Section */}
-              {matchResult.match_found && (
-                <div className="space-y-4">
-                  {/* Photo if available */}
-                  {matchResult.photo_path && (
-                    <div className="rounded-xl overflow-hidden border border-white/10 bg-black aspect-video relative group">
-                      <img
-                        src={matchResult.photo_path}
-                        alt="Reference"
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black/90 to-transparent">
-                        <span className="text-xs text-white/60">
-                          Foto de Referencia
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Social Links */}
-                  <div className="space-y-2">
-                    {matchResult.discord_username && (
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-                        <div className="bg-indigo-500/20 p-2 rounded-lg">
-                          <Disc className="w-4 h-4 text-indigo-400" />
-                        </div>
+                    <div className="bg-neutral-900/50 rounded-xl p-6 border border-white/5">
+                      <div className="flex justify-between items-start mb-4">
                         <div>
-                          <div className="text-indigo-200 text-xs font-medium">
-                            Discord
-                          </div>
-                          <div className="text-indigo-100 text-sm font-mono">
-                            @{matchResult.discord_username}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {matchResult.linkedin_content && (
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                        <div className="bg-blue-500/20 p-2 rounded-lg shrink-0">
-                          <Linkedin className="w-4 h-4 text-blue-400" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-blue-200 text-xs font-medium mb-0.5">
-                            LinkedIn Info
-                          </div>
-                          <p className="text-blue-100/80 text-xs leading-relaxed line-clamp-4">
-                            {matchResult.linkedin_content}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Candidates List (if no precise match but candidates exist) */}
-              {!matchResult.match_found &&
-                matchResult.candidates &&
-                matchResult.candidates.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="text-white/40 text-xs font-bold uppercase tracking-wider ml-1">
-                      Posibles Coincidencias
-                    </h3>
-                    <div className="space-y-2">
-                      {matchResult.candidates
-                        .slice(
-                          0,
-                          matchResult.confidence === "Medium" ? 3 : 3 // Show top 3 always for better feedback
-                        )
-                        .map((candidate, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-                          >
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 font-mono text-xs text-white/40">
-                              {idx + 1}
-                            </div>
-                            {candidate.photo_path && (
-                              <div className="w-10 h-10 rounded-full overflow-hidden bg-black border border-white/20">
-                                <img
-                                  src={candidate.photo_path}
-                                  alt={candidate.person_name}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
+                          <h2 className="text-white font-semibold text-lg leading-tight">
+                            {result
+                              ? result.match_found
+                                ? result.person_name
+                                : "Identidad desconocida"
+                              : "Procesando rostro..."}
+                          </h2>
+                          <div className="flex items-center gap-2 mt-2">
+                            {result ? (
+                              <span
+                                className={`text-xs px-2 py-1 rounded-md font-medium ${
+                                  result.match_found
+                                    ? "bg-green-500/10 text-green-400"
+                                    : "bg-red-500/10 text-red-400"
+                                }`}
+                              >
+                                {result.confidence || result.message}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-white/60 font-medium">
+                                Analizando...
+                              </span>
                             )}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white text-sm font-medium truncate">
-                                {candidate.person_name}
-                              </div>
-                              {candidate.distance !== undefined && (
-                                <div className="text-white/40 text-xs">
-                                  {((1 - candidate.distance) * 100).toFixed(0)}%
-                                  match
-                                </div>
-                              )}
+                          </div>
+                        </div>
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            face.isProcessing
+                              ? "bg-blue-400 animate-pulse"
+                              : result?.match_found
+                              ? "bg-green-400"
+                              : "bg-white/30"
+                          }`}
+                        />
+                      </div>
+
+                      {result && result.distance !== null ? (
+                        <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5">
+                          <div>
+                            <div className="text-white/40 text-[10px] uppercase font-semibold tracking-wider mb-1">
+                              Similitud
+                            </div>
+                            <div className="text-white font-mono text-base">
+                              {((1 - result.distance) * 100).toFixed(1)}%
                             </div>
                           </div>
-                        ))}
+                          <div>
+                            <div className="text-white/40 text-[10px] uppercase font-semibold tracking-wider mb-1">
+                              Distancia
+                            </div>
+                            <div className="text-white font-mono text-base">
+                              {result.distance.toFixed(4)}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-white/40 text-sm mt-4">
+                          {face.isProcessing
+                            ? "Calculando coincidencias..."
+                            : "Esperando resultados..."}
+                        </div>
+                      )}
                     </div>
+
+                    {result?.match_found && (
+                      <div className="space-y-4">
+                        {result.photo_path && (
+                          <div className="rounded-xl overflow-hidden border border-white/10 bg-black aspect-video relative group">
+                            <img
+                              src={result.photo_path}
+                              alt="Reference"
+                              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black/90 to-transparent">
+                              <span className="text-xs text-white/60">
+                                Foto de Referencia
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
+                          {result.discord_username && (
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                              <div className="bg-indigo-500/20 p-2 rounded-lg">
+                                <Disc className="w-4 h-4 text-indigo-400" />
+                              </div>
+                              <div>
+                                <div className="text-indigo-200 text-xs font-medium">
+                                  Discord
+                                </div>
+                                <div className="text-indigo-100 text-sm font-mono">
+                                  @{result.discord_username}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {result.linkedin_content && (
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                              <div className="bg-blue-500/20 p-2 rounded-lg shrink-0">
+                                <Linkedin className="w-4 h-4 text-blue-400" />
+                              </div>
+                              <div className="min-w-0 w-full">
+                                <div className="text-blue-200 text-xs font-medium mb-0.5">
+                                  LinkedIn Info
+                                </div>
+                                <p className="text-blue-100/80 text-xs leading-relaxed whitespace-pre-wrap wrap-break-word">
+                                  {result.linkedin_content}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {result &&
+                      !result.match_found &&
+                      result.candidates &&
+                      result.candidates.length > 0 && (
+                        <div className="space-y-3">
+                          <h3 className="text-white/40 text-xs font-bold uppercase tracking-wider ml-1">
+                            Posibles Coincidencias
+                          </h3>
+                          <div className="space-y-2">
+                            {result.candidates
+                              .slice(0, 3)
+                              .map((candidate, idx) => (
+                                <div
+                                  key={`${face.id}-candidate-${idx}`}
+                                  className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                                >
+                                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 font-mono text-xs text-white/40">
+                                    {idx + 1}
+                                  </div>
+                                  {candidate.photo_path && (
+                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-black border border-white/20">
+                                      <img
+                                        src={candidate.photo_path}
+                                        alt={candidate.person_name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-white text-sm font-medium truncate">
+                                      {candidate.person_name}
+                                    </div>
+                                    {candidate.distance !== undefined && (
+                                      <div className="text-white/40 text-xs">
+                                        {(
+                                          (1 - candidate.distance) *
+                                          100
+                                        ).toFixed(0)}
+                                        % match
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
                   </div>
-                )}
+                );
+              })}
             </div>
           )}
         </div>
@@ -656,10 +915,10 @@ export default function FaceRecognition({
           <div className="flex items-center gap-2">
             <div
               className={`w-1.5 h-1.5 rounded-full ${
-                isProcessing ? "bg-blue-500 animate-pulse" : "bg-white/20"
+                isAnyProcessing ? "bg-blue-500 animate-pulse" : "bg-white/20"
               }`}
             />
-            {isProcessing ? "Procesando..." : "Listo"}
+            {isAnyProcessing ? "Procesando..." : "Listo"}
           </div>
           <div>v1.2 • {timeUntilNextCheck}s refresh</div>
         </div>
