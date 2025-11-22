@@ -3,7 +3,17 @@
 import { useRef, useEffect, useState } from "react";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
-import { RefreshCcw } from "lucide-react";
+import {
+  RefreshCcw,
+  Camera,
+  CheckCircle2,
+  Loader2,
+  Scan,
+  Linkedin,
+  Disc,
+  Cpu,
+  AlertTriangle,
+} from "lucide-react";
 import { FACE_RECOGNITION_METHOD, FACE_METHODS } from "@/lib/config";
 
 interface FaceRecognitionProps {
@@ -22,7 +32,7 @@ interface MatchResult {
   match_found: boolean;
   person_name: string | null;
   distance: number | null;
-  confidence?: string | null; // Nivel de confianza como texto (ej: "Medium", "High", "Low")
+  confidence?: string | null;
   threshold: number;
   linkedin_content?: string | null;
   discord_username?: string | null;
@@ -314,47 +324,12 @@ export default function FaceRecognition({
     }
   };
 
-  // Capture photo (mantener para compatibilidad)
-  const takePhoto = () => {
-    if (!webcamRef.current || hasTried) return;
-
-    setHasTried(true);
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (imageSrc) {
-      setPhoto(imageSrc);
-      console.log("📸 Photo captured");
-
-      // Call callback if provided
-      if (onPhotoCapture) {
-        onPhotoCapture(imageSrc);
-      }
-    }
-  };
-
-  // Reset state
-  const resetState = () => {
-    setPhoto(null);
-    setFaceDetected(false);
-    setHasTried(false);
-  };
-
-  // Download photo
-  const downloadPhoto = () => {
-    if (!photo) return;
-
-    const link = document.createElement("a");
-    link.href = photo;
-    link.download = `face-capture-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    console.log("📥 Photo downloaded");
-  };
-
   // Toggle camera
   const toggleCamera = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
-    resetState();
+    setPhoto(null);
+    setFaceDetected(false);
+    setHasTried(false);
   };
 
   // Video constraints con exposición muy reducida
@@ -371,11 +346,18 @@ export default function FaceRecognition({
     ] as any,
   };
 
-  // Permission states
+  const currentMethod =
+    FACE_METHODS[FACE_RECOGNITION_METHOD as keyof typeof FACE_METHODS];
+
   if (hasPermission === null) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-white font-sans text-base">Cargando permisos...</p>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 text-white animate-spin" />
+          <p className="text-white/80 font-sans text-base">
+            Iniciando cámara...
+          </p>
+        </div>
       </div>
     );
   }
@@ -383,291 +365,320 @@ export default function FaceRecognition({
   if (hasPermission === false) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-        <p className="text-white font-sans text-base mb-4">
-          Se necesita permiso para usar la cámara
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-white text-black px-6 py-3 rounded font-medium hover:bg-gray-100 transition-colors"
-        >
-          Intentar de nuevo
-        </button>
+        <div className="bg-white/10 p-8 rounded-2xl backdrop-blur-md text-center max-w-md border border-white/10">
+          <Camera className="w-12 h-12 text-white/50 mx-auto mb-4" />
+          <h2 className="text-xl text-white font-semibold mb-2">
+            Acceso a cámara requerido
+          </h2>
+          <p className="text-white/60 font-sans text-sm mb-6">
+            Necesitamos acceso a tu cámara para realizar el reconocimiento
+            facial. Por favor, permite el acceso en tu navegador.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-all active:scale-95"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden flex flex-col md:flex-row">
-      {/* Camera View */}
-      <div className="flex-1 relative min-h-[50vh] md:min-h-screen">
-        <Webcam
-          ref={webcamRef}
-          audio={false}
-          screenshotFormat="image/jpeg"
-          videoConstraints={videoConstraints}
-          className="absolute inset-0 w-full h-full object-cover"
-          mirrored={facingMode === "user"}
-        />
-
-        {/* Face Detection Box - Sigue la cara */}
-        {faceDetected && faceBox && (
-          <div
-            className="absolute pointer-events-none transition-all duration-100 ease-out"
-            style={{
-              left: `${faceBox.x}%`,
-              top: `${faceBox.y}%`,
-              width: `${faceBox.width}%`,
-              height: `${faceBox.height}%`,
-            }}
-          >
-            {/* Cuadrado verde */}
-            <div className="w-full h-full border-4 border-green-500 rounded-lg shadow-lg shadow-green-500/50"></div>
-
-            {/* Nombre encima del cuadrado */}
-            {matchResult?.match_found && (
-              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                <div className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-lg">
-                  {matchResult.person_name}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Info Panel */}
-      <div className="w-full md:w-96 bg-black/90 backdrop-blur-sm border-t md:border-t-0 md:border-l border-white/10 h-[50vh] md:h-screen flex flex-col">
-        <div className="p-6 flex flex-col flex-1 min-h-0">
-          {/* Header */}
-          <div className="border-b border-white/20 pb-4 shrink-0">
-            <h2 className="text-white text-xl font-light tracking-wider">
-              RECONOCIMIENTO FACIAL
-            </h2>
-            <p className="text-white/60 text-xs mt-2 tracking-wide">
-              Sistema de verificación en tiempo real
-            </p>
-          </div>
-
-          {/* Status 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-white/60 text-sm">Estado:</span>
-              <span
-                className={`text-sm font-medium ${
-                  faceDetected ? "text-green-400" : "text-yellow-400"
+    <div className="min-h-screen bg-black text-white font-sans overflow-hidden flex flex-col md:flex-row">
+      {/* Main Camera Section */}
+      <div className="relative flex-1 flex flex-col bg-black">
+        {/* Header Overlay */}
+        <div className="absolute top-0 left-0 right-0 z-20 p-4 md:p-6 flex justify-between items-start bg-linear-to-b from-black/80 to-transparent pointer-events-none">
+          <div>
+            <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <Scan className="w-5 h-5 text-blue-400" />
+              FACE ID SYSTEM
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  modelsLoaded ? "bg-green-500" : "bg-yellow-500 animate-pulse"
                 }`}
-              >
-                {faceDetected ? "● Rostro detectado" : "○ Buscando rostro..."}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-white/60 text-sm">Modelos:</span>
-              <span
-                className={`text-sm font-medium ${
-                  modelsLoaded ? "text-green-400" : "text-yellow-400"
-                }`}
-              >
-                {modelsLoaded ? "✓ Cargados" : "⟳ Cargando..."}
+              />
+              <span className="text-xs text-white/60 font-mono uppercase tracking-wider">
+                {modelsLoaded ? "System Online" : "Initializing..."}
               </span>
             </div>
           </div>
-          */}
+          <div className="pointer-events-auto">
+            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-2">
+              <Cpu className="w-3 h-3 text-white/60" />
+              <span className="text-xs text-white/80 font-medium">
+                {currentMethod?.name || "Auto"}
+              </span>
+            </div>
+          </div>
+        </div>
 
-          {/* Match Result */}
-          {matchResult && (
-            <div className="border-none border-white/20 space-y-4 flex-1 overflow-y-auto mt-6">
-              {matchResult.match_found ? (
-                <>
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-400 font-medium text-sm">
-                        MATCH ENCONTRADO
-                      </span>
-                    </div>
-                    <h3 className="text-white text-2xl font-light mb-1">
-                      {matchResult.person_name}
-                    </h3>
-                    <p className="text-white/60 text-xs">
-                      Confianza: {matchResult.confidence || "N/A"}
-                    </p>
+        {/* Webcam Container */}
+        <div className="relative flex-1 overflow-hidden">
+          <Webcam
+            ref={webcamRef}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            videoConstraints={videoConstraints}
+            className="absolute inset-0 w-full h-full object-cover"
+            mirrored={facingMode === "user"}
+          />
+
+          {/* Scanlines & CRT Effect Overlay (Removed for minimalism) */}
+
+          {/* Face Tracking Visuals */}
+          {faceDetected && faceBox ? (
+            <div
+              className="absolute pointer-events-none transition-all duration-200 ease-linear z-20 border border-white/30 rounded-lg shadow-2xl"
+              style={{
+                left: `${faceBox.x}%`,
+                top: `${faceBox.y}%`,
+                width: `${faceBox.width}%`,
+                height: `${faceBox.height}%`,
+              }}
+            >
+              {/* Simple Corner Indicators */}
+              <div className="absolute -top-1 -left-1 w-3 h-3 border-l-2 border-t-2 border-white" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 border-r-2 border-t-2 border-white" />
+              <div className="absolute -bottom-1 -left-1 w-3 h-3 border-l-2 border-b-2 border-white" />
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 border-r-2 border-b-2 border-white" />
+
+              {/* Minimal Name Tag */}
+              {matchResult?.match_found && (
+                <div className="absolute -top-8 left-0">
+                  <div className="text-white font-medium text-sm tracking-wide drop-shadow-md">
+                    {matchResult.person_name}
                   </div>
-
-                  {matchResult.linkedin_content && (
-                    <div className="space-y-2">
-                      <h4 className="text-white/80 text-sm font-medium">
-                        Información:
-                      </h4>
-                      <div className="bg-white/5 rounded-lg p-3 max-h-64 overflow-y-auto">
-                        <p className="text-white/70 text-xs leading-relaxed whitespace-pre-wrap">
-                          {matchResult.linkedin_content}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {matchResult.discord_username && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-white/60 text-sm">Discord:</span>
-                      <span className="text-white text-sm font-mono">
-                        {matchResult.discord_username}
-                      </span>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      <span className="text-red-400 font-medium text-sm">
-                        {matchResult.confidence === "Medium"
-                          ? "CANDIDATOS SUGERIDOS"
-                          : "NO RECONOCIDO"}
-                      </span>
-                    </div>
-                    <p className="text-white/70 text-sm">
-                      {matchResult.message}
-                    </p>
-                  </div>
-
-                  {/* Mostrar candidatos si confianza es Media o Baja */}
-                  {matchResult.candidates &&
-                    matchResult.candidates.length > 0 && (
-                      <div className="space-y-3">
-                        {/* Limitar a 1 candidato si confianza es Alta, sino 3 */}
-                        {(() => {
-                          const maxCandidates =
-                            matchResult.confidence === "High" ? 1 : 3;
-                          const displayedCandidates =
-                            matchResult.candidates.slice(0, maxCandidates);
-                          return (
-                            <>
-                              <h4 className="text-white/80 text-sm font-medium">
-                                Top {displayedCandidates.length}{" "}
-                                {displayedCandidates.length === 1
-                                  ? "candidato"
-                                  : "candidatos"}
-                                :
-                              </h4>
-                              {displayedCandidates.map((candidate, idx) => (
-                                <div
-                                  key={idx}
-                                  className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
-                                >
-                                  {/* Header con ranking */}
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0">
-                                      <span className="text-white text-xs font-bold">
-                                        #{idx + 1}
-                                      </span>
-                                    </div>
-                                    <h5 className="text-white font-medium text-sm flex-1 truncate">
-                                      {candidate.person_name}
-                                    </h5>
-                                  </div>
-
-                                  {/* Contenedor con foto y detalles */}
-                                  <div className="flex gap-3">
-                                    {/* Foto del candidato como círculo */}
-                                    {candidate.photo_path && (
-                                      <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden bg-white/10 border border-white/20">
-                                        <img
-                                          src={candidate.photo_path}
-                                          alt={candidate.person_name}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            e.currentTarget.style.display =
-                                              "none";
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                    {/* Detalles del candidato */}
-                                    <div className="flex-1 space-y-1">
-                                      {candidate.discord_username && (
-                                        <div className="flex items-center gap-1">
-                                          <span className="text-white/60 text-xs">
-                                            Discord:
-                                          </span>
-                                          <span className="text-white text-xs font-mono">
-                                            @{candidate.discord_username}
-                                          </span>
-                                        </div>
-                                      )}
-                                      {candidate.distance !== undefined && (
-                                        <div className="flex items-center gap-1">
-                                          <span className="text-white/60 text-xs">
-                                            Similitud:
-                                          </span>
-                                          <span className="text-blue-400 text-xs font-medium">
-                                            {(
-                                              (1 - candidate.distance) *
-                                              100
-                                            ).toFixed(1)}
-                                            %
-                                          </span>
-                                        </div>
-                                      )}
-                                      {candidate.linkedin_content && (
-                                        <p className="text-white/40 text-xs line-clamp-2">
-                                          {candidate.linkedin_content.substring(
-                                            0,
-                                            80
-                                          )}
-                                          ...
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
                 </div>
               )}
             </div>
-          )}
-
-          {!matchResult && faceDetected && (
-            <div className="border-t border-white/20 pt-4 flex-1 flex items-center justify-center">
-              <div className="text-center text-white/60 text-sm">
-                Esperando verificación...
-              </div>
+          ) : (
+            /* Minimal Idle Indicator */
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-white/10 rounded-2xl flex items-center justify-center z-10">
+              <div className="w-full h-px bg-white/10 absolute top-1/2 -translate-y-1/2" />
+              <div className="h-full w-px bg-white/10 absolute left-1/2 -translate-x-1/2" />
             </div>
           )}
 
-          {!faceDetected && (
-            <div className="border-t border-white/20 pt-4 flex-1 flex items-center justify-center">
-              <div className="text-center text-white/60 text-sm">
-                Posiciona tu rostro frente a la cámara
-              </div>
-            </div>
-          )}
+          {/* Camera Controls */}
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 z-30 pointer-events-auto">
+            <button
+              onClick={toggleCamera}
+              className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 active:scale-95 transition-all group"
+            >
+              <RefreshCcw className="w-6 h-6 text-white group-hover:rotate-180 transition-transform duration-500" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Camera Switch Button */}
-      <button
-        onClick={toggleCamera}
-        className="absolute bottom-6 left-6 z-20 p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 active:bg-white/40 transition-colors"
-        aria-label="Cambiar cámara"
-      >
-        <RefreshCcw className="w-6 h-6 text-white" />
-      </button>
+      {/* Sidebar / Info Panel */}
+      <div className="w-full md:w-[400px] bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-white/10 flex flex-col h-[40vh] md:h-screen transition-all z-30 shadow-2xl">
+        <div className="flex-1 overflow-y-auto p-6">
+          {!matchResult ? (
+            <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
+              <Scan className="w-16 h-16 text-white/20 mb-4" />
+              <p className="text-white/60 text-sm font-medium">
+                {faceDetected ? "Procesando rostro..." : "Esperando rostro..."}
+              </p>
+              <div className="mt-4 w-32 h-1 bg-white/10 rounded-full overflow-hidden">
+                {isProcessing && (
+                  <div className="h-full bg-blue-500 animate-indeterminate" />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* Primary Match Status */}
+              <div className="bg-neutral-900/50 rounded-xl p-6 border border-white/5">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h2 className="text-white font-semibold text-lg leading-tight">
+                      {matchResult.match_found
+                        ? matchResult.person_name
+                        : "Identidad desconocida"}
+                    </h2>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span
+                        className={`text-xs px-2 py-1 rounded-md font-medium ${
+                          matchResult.match_found
+                            ? "bg-green-500/10 text-green-400"
+                            : "bg-red-500/10 text-red-400"
+                        }`}
+                      >
+                        {matchResult.confidence
+                          ? `${matchResult.confidence}`
+                          : matchResult.message}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Loading indicator for models */}
-      {!modelsLoaded && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-          <div className="bg-black/70 text-white px-6 py-3 rounded-lg backdrop-blur-sm">
-            <p className="text-sm">Cargando modelo de detección...</p>
-          </div>
+                {/* Stats Grid */}
+                {matchResult.distance !== null && (
+                  <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5">
+                    <div>
+                      <div className="text-white/40 text-[10px] uppercase font-semibold tracking-wider mb-1">
+                        Similitud
+                      </div>
+                      <div className="text-white font-mono text-base">
+                        {((1 - matchResult.distance) * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-white/40 text-[10px] uppercase font-semibold tracking-wider mb-1">
+                        Distancia
+                      </div>
+                      <div className="text-white font-mono text-base">
+                        {matchResult.distance.toFixed(4)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Details Section */}
+              {matchResult.match_found && (
+                <div className="space-y-4">
+                  {/* Photo if available */}
+                  {matchResult.photo_path && (
+                    <div className="rounded-xl overflow-hidden border border-white/10 bg-black aspect-video relative group">
+                      <img
+                        src={matchResult.photo_path}
+                        alt="Reference"
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black/90 to-transparent">
+                        <span className="text-xs text-white/60">
+                          Foto de Referencia
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Social Links */}
+                  <div className="space-y-2">
+                    {matchResult.discord_username && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                        <div className="bg-indigo-500/20 p-2 rounded-lg">
+                          <Disc className="w-4 h-4 text-indigo-400" />
+                        </div>
+                        <div>
+                          <div className="text-indigo-200 text-xs font-medium">
+                            Discord
+                          </div>
+                          <div className="text-indigo-100 text-sm font-mono">
+                            @{matchResult.discord_username}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {matchResult.linkedin_content && (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                        <div className="bg-blue-500/20 p-2 rounded-lg shrink-0">
+                          <Linkedin className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-blue-200 text-xs font-medium mb-0.5">
+                            LinkedIn Info
+                          </div>
+                          <p className="text-blue-100/80 text-xs leading-relaxed line-clamp-4">
+                            {matchResult.linkedin_content}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Candidates List (if no precise match but candidates exist) */}
+              {!matchResult.match_found &&
+                matchResult.candidates &&
+                matchResult.candidates.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-white/40 text-xs font-bold uppercase tracking-wider ml-1">
+                      Posibles Coincidencias
+                    </h3>
+                    <div className="space-y-2">
+                      {matchResult.candidates
+                        .slice(
+                          0,
+                          matchResult.confidence === "Medium" ? 3 : 3 // Show top 3 always for better feedback
+                        )
+                        .map((candidate, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                          >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 font-mono text-xs text-white/40">
+                              {idx + 1}
+                            </div>
+                            {candidate.photo_path && (
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-black border border-white/20">
+                                <img
+                                  src={candidate.photo_path}
+                                  alt={candidate.person_name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white text-sm font-medium truncate">
+                                {candidate.person_name}
+                              </div>
+                              {candidate.distance !== undefined && (
+                                <div className="text-white/40 text-xs">
+                                  {((1 - candidate.distance) * 100).toFixed(0)}%
+                                  match
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Status Footer */}
+        <div className="p-4 border-t border-white/10 bg-black/50 backdrop-blur-sm text-xs text-white/40 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                isProcessing ? "bg-blue-500 animate-pulse" : "bg-white/20"
+              }`}
+            />
+            {isProcessing ? "Procesando..." : "Listo"}
+          </div>
+          <div>v1.2 • {timeUntilNextCheck}s refresh</div>
+        </div>
+      </div>
+
+      {/* Inline Styles for Custom Animations */}
+      <style jsx global>{`
+        @keyframes indeterminate {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        .animate-indeterminate {
+          animation: indeterminate 1s infinite linear;
+        }
+      `}</style>
     </div>
   );
 }
