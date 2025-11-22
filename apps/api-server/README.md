@@ -206,9 +206,71 @@ python add_faceapi_embeddings_from_storage.py
 - Omite perfiles que ya tienen embedding
 - Maneja errores sin afectar otros perfiles
 
+### `upload_linkedin_mentors.py`
+
+Script para procesar perfiles de LinkedIn **sin embeddings precalculados** y calcular ambos embeddings (Face-API y DeepFace) automáticamente.
+
+**Uso:**
+
+```bash
+# Instalar DeepFace si aún no está instalado
+pip install deepface
+
+# Configurar la clave de servicio de Supabase
+export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
+
+# Ejecutar el script (usa el archivo por defecto: linkedin_mentors_output.json)
+python upload_linkedin_mentors.py
+
+# O especificar un archivo JSON diferente
+python upload_linkedin_mentors.py mi_archivo.json
+```
+
+**Formato del JSON esperado:**
+
+El archivo JSON debe ser un array de objetos con la siguiente estructura (similar a `linkedin_mentors_output.json`):
+
+```json
+[
+  {
+    "username": "profile_1",
+    "linkedin_url": "https://www.linkedin.com/in/usuario",
+    "scraped_at": "2025-11-22 18:42:03",
+    "name": "Nombre Completo",
+    "headline": "Título profesional",
+    "location": "Ubicación",
+    "profile_image_url": "https://media.licdn.com/...",
+    "about": null,
+    "experience": [{ "title": "Título", "company": "Empresa" }],
+    "education": [{ "school": "Escuela", "degree": "Grado" }],
+    "skills": [],
+    "error": null
+  }
+]
+```
+
+**Nota:** Este script NO requiere que el JSON tenga el campo `face_embedding`. Los embeddings se calculan automáticamente.
+
+**Funcionalidades:**
+
+- Descarga imágenes de perfil desde URLs de LinkedIn
+- Calcula embedding con **Face-API** (face-recognition, 128 dimensiones)
+- Calcula embedding con **DeepFace** (Facenet512, 512 dimensiones)
+- Guarda ambos embeddings en la DB:
+  - `face_encoding_faceapi`: 128 dimensiones
+  - `face_encoding` / `face_encoding_deepface_512`: 512 dimensiones
+- Si DeepFace no está instalado, solo calcula Face-API
+- Maneja errores y omite perfiles inválidos
+
+**Columnas en DB:**
+
+- `face_encoding`: embedding principal (DeepFace 512 dims si disponible, sino Face-API 128 dims)
+- `face_encoding_faceapi`: embedding de Face-API (128 dimensiones)
+- `face_encoding_deepface_512`: embedding de DeepFace (512 dimensiones)
+
 ### `add_deepface_embeddings.py`
 
-Script para calcular embeddings faciales con **más dimensiones** usando DeepFace.
+Script para calcular embeddings faciales con **más dimensiones** usando DeepFace en perfiles existentes.
 
 **⚠️ Limitación de face-api.js y face_recognition:**
 
