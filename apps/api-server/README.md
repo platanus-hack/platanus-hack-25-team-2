@@ -87,18 +87,155 @@ El archivo JSON debe ser un array de objetos con la siguiente estructura:
 - Inserta registros en la tabla `known_people` con los embeddings precalculados
 - Maneja errores y omite perfiles inválidos
 
-### `seed_supabase.py`
+### `upload_linkedin_data_ab_test.py`
 
-Script para procesar perfiles de LinkedIn calculando embeddings faciales desde imágenes.
+Script para A/B Testing con dos métodos de embedding:
+
+1. **Método Externo (512 dims)**: USA el embedding del JSON (Facenet512)
+2. **Método Local (128 dims)**: Descarga la imagen y calcula embedding con face-recognition (face-api)
+
+Ambos embeddings se guardan en la DB para comparar precision y velocidad.
+
+**Uso:**
+
+```bash
+# Configurar la clave de servicio de Supabase
+export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
+
+# Ejecutar el script (usa el archivo por defecto: linkedin_profiles_with_embeddings.json)
+python upload_linkedin_data_ab_test.py
+
+# O especificar un archivo JSON diferente
+python upload_linkedin_data_ab_test.py mi_archivo.json
+```
+
+**Columnas nuevas en DB:**
+
+- `face_encoding`: embedding del JSON (512 dimensiones, Facenet512)
+- `face_encoding_faceapi`: embedding calculado (128 dimensiones, face-recognition)
+- `embedding_method`: "hybrid" (ambos métodos)
+
+**Funcionalidades:**
+
+- Descarga imágenes desde URLs
+- Calcula embedding con face-recognition (128 dimensiones)
+- Guarda ambos embeddings (JSON y calculado)
+- Permite comparar presición y velocidad de ambos métodos
+
+### `add_faceapi_embeddings.py`
+
+Script para agregar embeddings faciales locales (face-api, 128 dimensiones) a perfiles existentes sin re-subir toda la información.
+
+**Uso:**
+
+```bash
+# Configurar la clave de servicio de Supabase
+export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
+
+# Ejecutar el script
+python add_faceapi_embeddings.py
+```
+
+**Funcionalidades:**
+
+- Lee perfiles existentes de la DB
+- Descarga la imagen desde `photo_path`
+- Calcula embedding con face-api (128 dimensiones)
+- Actualiza solo la columna `face_encoding_faceapi`
+- Omite perfiles que ya tienen embedding
+- Maneja errores sin afectar otros perfiles
+
+### `upload_photos_to_storage.py`
+
+Script para descargar fotos de perfil desde URLs y subirlas a Supabase Storage.
+
+**Uso:**
+
+```bash
+# Configurar la clave de servicio de Supabase
+export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
+
+# Ejecutar el script
+python upload_photos_to_storage.py
+```
+
+**Funcionalidades:**
+
+- Lee URLs de fotos del JSON
+- Descarga imágenes desde las URLs
+- Sube a Supabase Storage (bucket: `photos`)
+- Actualiza el JSON con URLs públicas de Storage
+- Evita re-subir fotos que ya existen
+- Genera URLs públicas para acceso desde el frontend
+
+### `update_photo_paths.py`
+
+Script para actualizar `photo_path` en la DB con las URLs de Storage.
 
 **Uso:**
 
 ```bash
 export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
-python seed_supabase.py
+python update_photo_paths.py
 ```
 
-Este script requiere que el archivo `linkedin_profiles_data.json` exista y calcula los embeddings usando `face_recognition`.
+**Funcionalidades:**
+
+- Lee perfiles del JSON actualizado
+- Busca cada perfil en la DB por nombre
+- Actualiza `photo_path` con URL pública de Storage
+- Reporta éxito/fallos
+
+### `add_faceapi_embeddings_from_storage.py`
+
+Script para calcular embeddings faciales (128 dimensiones) desde fotos en Storage.
+
+**Uso:**
+
+```bash
+export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'
+python add_faceapi_embeddings_from_storage.py
+```
+
+**Funcionalidades:**
+
+- Obtiene todos los perfiles de la DB
+- Descarga fotos desde `photo_path` (Storage)
+- Calcula embedding con face_recognition (128 dims)
+- Actualiza `face_encoding_faceapi` en la DB
+- Omite perfiles que ya tienen embedding
+- Maneja errores sin afectar otros perfiles
+
+## Cambiar entre Métodos para A/B Testing
+
+### Opción 1: Variable de Entorno (Recomendado)
+
+```bash
+# Usar método externo (Facenet512, 512 dims) - MÁS PRECISO
+NEXT_PUBLIC_FACE_METHOD=external npm run dev
+
+# Usar método local (face-api, 128 dims) - MÁS RÁPIDO
+NEXT_PUBLIC_FACE_METHOD=faceapi_local npm run dev
+
+# A/B Testing (probar ambos)
+NEXT_PUBLIC_FACE_METHOD=both npm run dev
+```
+
+### Opción 2: Archivo de Configuración
+
+Editar `apps/web/lib/config.ts`:
+
+```typescript
+export const FACE_RECOGNITION_METHOD = "external"; // Cambiar aquí
+```
+
+### Endpoints Disponibles
+
+| Endpoint           | Método   | Dims  | Velocidad | Precisión |
+| ------------------ | -------- | ----- | --------- | --------- |
+| `/api/match`       | Externo  | 512   | Lento     | ⭐⭐⭐    |
+| `/api/match-local` | Local    | 128   | Rápido    | ⭐⭐      |
+| `/api/match-ab`    | A/B Test | Ambos | Ambos     | Ambos     |
 
 ## Variables de Entorno
 
