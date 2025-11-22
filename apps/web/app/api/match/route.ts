@@ -7,7 +7,7 @@ const EXTERNAL_API_URL = 'http://38.54.20.121/api/identify';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { image } = body;
+    const { image, method = 'external' } = body; // 'external' | 'faceapi_local' | 'both'
 
     if (!image || typeof image !== 'string') {
       return NextResponse.json(

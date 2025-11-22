@@ -4,9 +4,18 @@ import { useRef, useEffect, useState } from "react";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
 import { RefreshCcw } from "lucide-react";
+import { FACE_RECOGNITION_METHOD, FACE_METHODS } from "@/lib/config";
 
 interface FaceRecognitionProps {
   onPhotoCapture?: (photo: string) => void;
+}
+
+interface Candidate {
+  person_name: string;
+  discord_username?: string;
+  photo_path?: string;
+  linkedin_content?: string;
+  distance?: number;
 }
 
 interface MatchResult {
@@ -17,6 +26,8 @@ interface MatchResult {
   threshold: number;
   linkedin_content?: string | null;
   discord_username?: string | null;
+  photo_path?: string | null;
+  candidates?: Candidate[];
   message: string;
 }
 
@@ -35,10 +46,7 @@ export default function FaceRecognition({
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCheckTime, setLastCheckTime] = useState<number>(0);
-  const [timeUntilNextCheck, setTimeUntilNextCheck] = useState<number>(5);
-  const [lastIdentifiedPerson, setLastIdentifiedPerson] = useState<
-    string | null
-  >(null);
+  const [timeUntilNextCheck, setTimeUntilNextCheck] = useState<number>(2);
   const [faceBox, setFaceBox] = useState<{
     x: number;
     y: number;
@@ -46,14 +54,12 @@ export default function FaceRecognition({
     height: number;
   } | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const lastFaceDetectedTime = useRef<number>(0);
   const lastFaceBoxRef = useRef<{
     x: number;
     y: number;
     width: number;
     height: number;
   } | null>(null);
-  const stableFaceCountRef = useRef<number>(0);
 
   // Check for camera permissions
   useEffect(() => {
@@ -103,7 +109,6 @@ export default function FaceRecognition({
           const wasFaceDetected = faceDetected;
 
           setFaceDetected(true);
-          lastFaceDetectedTime.current = now;
 
           // Obtener las coordenadas de la cara detectada
           const detection = detections[0];
@@ -122,89 +127,40 @@ export default function FaceRecognition({
 
           setFaceBox(currentFaceBox);
 
-          // Detectar si la cara cambió significativamente de posición o tamaño
-          let faceMovedSignificantly = false;
-          if (lastFaceBoxRef.current) {
-            const POSITION_THRESHOLD = 15; // 15% de cambio en posición
-            const SIZE_THRESHOLD = 20; // 20% de cambio en tamaño
-
-            const xDiff = Math.abs(currentFaceBox.x - lastFaceBoxRef.current.x);
-            const yDiff = Math.abs(currentFaceBox.y - lastFaceBoxRef.current.y);
-            const widthDiff = Math.abs(
-              currentFaceBox.width - lastFaceBoxRef.current.width
-            );
-            const heightDiff = Math.abs(
-              currentFaceBox.height - lastFaceBoxRef.current.height
-            );
-
-            faceMovedSignificantly =
-              xDiff > POSITION_THRESHOLD ||
-              yDiff > POSITION_THRESHOLD ||
-              widthDiff > SIZE_THRESHOLD ||
-              heightDiff > SIZE_THRESHOLD;
-
-            if (faceMovedSignificantly) {
-              console.log(
-                "🔄 Face position changed significantly - likely new person"
-              );
-              stableFaceCountRef.current = 0; // Resetear contador de estabilidad
-              setLastIdentifiedPerson(null); // Resetear persona identificada
-            } else {
-              stableFaceCountRef.current++;
-            }
-          } else {
-            // Primera detección
-            stableFaceCountRef.current = 0;
-          }
-
+          // Simplificado para face-api: solo seguir la cara sin reaccionar a movimiento
           lastFaceBoxRef.current = currentFaceBox;
 
-          // Estrategia mejorada:
-          // - Si la cara cambió de posición significativamente, consultar inmediatamente
-          // - Si es una cara nueva (primera detección), esperar a que se estabilice (3 frames)
-          // - Si es la misma persona estable, consultar cada 5 segundos
+          // Estrategia simple para face-api rápido:
+          // - Consultar inmediatamente la primera vez
+          // - Luego cada 2 segundos para la misma persona
+          // - Si cambia de persona, consultar inmediatamente
           const timeSinceLastCheck = now - lastCheckTime;
-          const THROTTLE_SAME_PERSON = 5000; // 5 segundos para la misma persona
-          const MIN_STABLE_FRAMES = 3; // Frames mínimos para considerar cara estable
-          const MIN_TIME_BETWEEN_CHECKS = 1000; // 1 segundo mínimo entre consultas
-
-          const isFaceStable = stableFaceCountRef.current >= MIN_STABLE_FRAMES;
+          const THROTTLE_SAME_PERSON = 2000; // 2 segundos para la misma persona (más rápido)
           const isFirstDetection = !wasFaceDetected;
-          const canCheck = timeSinceLastCheck >= MIN_TIME_BETWEEN_CHECKS;
 
           const shouldCheck =
-            canCheck &&
-            (faceMovedSignificantly || // Cara cambió de posición
-              (isFirstDetection && isFaceStable) || // Primera detección y estable
-              (!isFirstDetection &&
-                timeSinceLastCheck >= THROTTLE_SAME_PERSON)); // Throttling normal
+            isFirstDetection || // Siempre consultar la primera detección
+            timeSinceLastCheck >= THROTTLE_SAME_PERSON; // O después del throttle
 
           if (shouldCheck && !isProcessing) {
             console.log("📸 Performing face match...");
             await performFaceMatch();
             setLastCheckTime(now);
           } else {
-            // Actualizar contador
-            if (!isFaceStable && isFirstDetection) {
-              setTimeUntilNextCheck(0); // Esperando estabilización
-            } else {
-              const remainingTime = Math.max(
-                0,
-                THROTTLE_SAME_PERSON - timeSinceLastCheck
-              );
-              setTimeUntilNextCheck(Math.ceil(remainingTime / 1000));
-            }
+            // Actualizar contador para mostrar tiempo hasta próxima consulta
+            const remainingTime = Math.max(
+              0,
+              THROTTLE_SAME_PERSON - timeSinceLastCheck
+            );
+            setTimeUntilNextCheck(Math.ceil(remainingTime / 1000));
           }
         } else {
-          // Si la cara desaparece, resetear todo inmediatamente
+          // Si la cara desaparece, limpiar UI pero mantener el último resultado
           if (faceDetected) {
             console.log("👋 Face disappeared");
             setFaceDetected(false);
-            setMatchResult(null);
             setFaceBox(null);
-            setLastIdentifiedPerson(null);
             lastFaceBoxRef.current = null;
-            stableFaceCountRef.current = 0;
           }
         }
       } catch (error) {
@@ -212,8 +168,8 @@ export default function FaceRecognition({
       }
     };
 
-    // Reducir frecuencia de detección de 100ms a 300ms para reducir carga
-    const interval = setInterval(detectAndMatch, 300);
+    // Frecuencia de detección: 100ms para respuesta rápida
+    const interval = setInterval(detectAndMatch, 100);
     return () => clearInterval(interval);
   }, [modelsLoaded, isProcessing, lastCheckTime]);
 
@@ -240,17 +196,58 @@ export default function FaceRecognition({
         return;
       }
 
-      console.log("✅ Image captured, sending to API...");
+      console.log(
+        `✅ Image captured, sending to API (${FACE_RECOGNITION_METHOD})...`
+      );
 
-      // Enviar imagen en base64 al servidor con soporte para cancelación
-      const response = await fetch("/api/match", {
+      // Seleccionar endpoint basado en configuración
+      const endpoint =
+        FACE_METHODS[FACE_RECOGNITION_METHOD as keyof typeof FACE_METHODS]
+          ?.endpoint || "/api/match";
+
+      let requestBody: any = {};
+
+      // Para método local, calcular descriptor; para externo, enviar imagen
+      if (FACE_RECOGNITION_METHOD === "faceapi_local") {
+        // Crear imagen para face-api
+        const img = new Image();
+        img.src = imageSrc;
+
+        await new Promise((resolve) => {
+          img.onload = resolve;
+        });
+
+        // Detectar cara y obtener descriptor
+        const detection = await faceapi
+          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+
+        if (!detection) {
+          console.log("No face detected in screenshot");
+          setIsProcessing(false);
+          return;
+        }
+
+        requestBody = {
+          face_descriptor: Array.from(detection.descriptor),
+          threshold: 0.6,
+        };
+      } else {
+        // Método externo: enviar imagen en base64
+        requestBody = {
+          image: imageSrc, // Base64 con prefijo data:image/jpeg;base64,
+          method: FACE_RECOGNITION_METHOD,
+        };
+      }
+
+      // Enviar al servidor con soporte para cancelación
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          image: imageSrc, // Base64 con prefijo data:image/jpeg;base64,
-        }),
+        body: JSON.stringify(requestBody),
         signal: abortController.signal, // Permitir cancelar la petición
       });
 
@@ -263,75 +260,36 @@ export default function FaceRecognition({
       const result = await response.json();
       console.log("Match result:", JSON.stringify(result, null, 2));
 
-      // Adaptar la respuesta del nuevo endpoint al formato esperado por el componente
-      if (result.match) {
-        const currentPersonName = result.match.full_name || null;
-        const personChanged = currentPersonName !== lastIdentifiedPerson;
-
-        // Si cambió la persona, hacer consulta inmediata la próxima vez
-        if (personChanged) {
-          setLastIdentifiedPerson(currentPersonName);
-          // Resetear el tiempo de última verificación para permitir consulta inmediata
-          setLastCheckTime(0);
-        }
-
-        // Capturar cosine_similarity como distance (para cálculos internos)
-        // El endpoint externo envía cosine_similarity (0-1) donde mayor es mejor
-        let distance: number | null = null;
-        if (
-          result.match.cosine_similarity !== undefined &&
-          result.match.cosine_similarity !== null
-        ) {
-          const sim = Number(result.match.cosine_similarity);
-          if (!isNaN(sim)) {
-            // Convertir similarity (mayor es mejor) a distance (menor es mejor)
-            distance = 1 - sim;
-          }
-        } else if (
-          result.match.distance !== undefined &&
-          result.match.distance !== null
-        ) {
-          const dist = Number(result.match.distance);
-          if (!isNaN(dist)) {
-            distance = dist;
-          }
-        }
+      // Manejar respuesta basada en si hay match
+      if (result.match_found) {
+        // Capturar distance/similarity
+        let distance: number | null = result.distance || null;
 
         // Capturar confidence como texto (ej: "Medium", "High", "Low")
         const confidenceText =
-          result.match.confidence && typeof result.match.confidence === "string"
-            ? result.match.confidence
+          result.confidence && typeof result.confidence === "string"
+            ? result.confidence
             : null;
 
-        // Pasar todos los campos del perfil que vengan del endpoint externo
         setMatchResult({
           match_found: true,
-          person_name: result.match.full_name || null,
+          person_name: result.person_name || null,
           distance: distance,
           confidence: confidenceText,
-          threshold: result.match.threshold || result.threshold || 0.6,
-          linkedin_content:
-            result.match.linkedin_content || result.match.about || null,
-          discord_username:
-            result.match.discord_username || result.match.username || null,
-          message: `Match encontrado: ${
-            result.match.full_name || "Persona identificada"
-          }`,
-        });
-      } else if (result.error) {
-        setMatchResult({
-          match_found: false,
-          person_name: null,
-          distance: null,
-          threshold: 0.6,
-          message: result.message || result.error || "No se encontró match",
+          threshold: result.threshold || 0.6,
+          linkedin_content: result.linkedin_content || null,
+          discord_username: result.discord_username || null,
+          photo_path: result.photo_path || null,
+          message: result.message || `Match encontrado: ${result.person_name}`,
         });
       } else {
         setMatchResult({
           match_found: false,
-          person_name: null,
-          distance: null,
-          threshold: 0.6,
+          person_name: result.person_name || null,
+          distance: result.distance || null,
+          confidence: result.confidence || null,
+          threshold: result.threshold || 0.6,
+          candidates: result.candidates || [],
           message: result.message || "No se encontró match",
         });
       }
@@ -478,10 +436,10 @@ export default function FaceRecognition({
       </div>
 
       {/* Info Panel */}
-      <div className="w-full md:w-96 bg-black/90 backdrop-blur-sm border-t md:border-t-0 md:border-l border-white/10 overflow-y-auto max-h-[50vh] md:max-h-screen">
-        <div className="p-6 space-y-6">
+      <div className="w-full md:w-96 bg-black/90 backdrop-blur-sm border-t md:border-t-0 md:border-l border-white/10 h-[50vh] md:h-screen flex flex-col">
+        <div className="p-6 flex flex-col flex-1 min-h-0">
           {/* Header */}
-          <div className="border-b border-white/20 pb-4">
+          <div className="border-b border-white/20 pb-4 shrink-0">
             <h2 className="text-white text-xl font-light tracking-wider">
               RECONOCIMIENTO FACIAL
             </h2>
@@ -490,7 +448,7 @@ export default function FaceRecognition({
             </p>
           </div>
 
-          {/* Status */}
+          {/* Status 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-white/60 text-sm">Estado:</span>
@@ -513,20 +471,12 @@ export default function FaceRecognition({
                 {modelsLoaded ? "✓ Cargados" : "⟳ Cargando..."}
               </span>
             </div>
-
-            {isProcessing && (
-              <div className="flex items-center justify-between">
-                <span className="text-white/60 text-sm">Procesando:</span>
-                <span className="text-sm font-medium text-blue-400">
-                  ⟳ Analizando...
-                </span>
-              </div>
-            )}
           </div>
+          */}
 
           {/* Match Result */}
           {matchResult && (
-            <div className="border-t border-white/20 pt-4 space-y-4">
+            <div className="border-none border-white/20 space-y-4 flex-1 overflow-y-auto mt-6">
               {matchResult.match_found ? (
                 <>
                   <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
@@ -567,25 +517,124 @@ export default function FaceRecognition({
                   )}
                 </>
               ) : (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    <span className="text-red-400 font-medium text-sm">
-                      NO RECONOCIDO
-                    </span>
+                <div className="space-y-4">
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                      <span className="text-red-400 font-medium text-sm">
+                        {matchResult.confidence === "Medium"
+                          ? "CANDIDATOS SUGERIDOS"
+                          : "NO RECONOCIDO"}
+                      </span>
+                    </div>
+                    <p className="text-white/70 text-sm">
+                      {matchResult.message}
+                    </p>
                   </div>
-                  <p className="text-white/70 text-sm">{matchResult.message}</p>
+
+                  {/* Mostrar candidatos si confianza es Media o Baja */}
+                  {matchResult.candidates &&
+                    matchResult.candidates.length > 0 && (
+                      <div className="space-y-3">
+                        {/* Limitar a 1 candidato si confianza es Alta, sino 3 */}
+                        {(() => {
+                          const maxCandidates =
+                            matchResult.confidence === "High" ? 1 : 3;
+                          const displayedCandidates =
+                            matchResult.candidates.slice(0, maxCandidates);
+                          return (
+                            <>
+                              <h4 className="text-white/80 text-sm font-medium">
+                                Top {displayedCandidates.length}{" "}
+                                {displayedCandidates.length === 1
+                                  ? "candidato"
+                                  : "candidatos"}
+                                :
+                              </h4>
+                              {displayedCandidates.map((candidate, idx) => (
+                                <div
+                                  key={idx}
+                                  className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
+                                >
+                                  {/* Header con ranking */}
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0">
+                                      <span className="text-white text-xs font-bold">
+                                        #{idx + 1}
+                                      </span>
+                                    </div>
+                                    <h5 className="text-white font-medium text-sm flex-1 truncate">
+                                      {candidate.person_name}
+                                    </h5>
+                                  </div>
+
+                                  {/* Contenedor con foto y detalles */}
+                                  <div className="flex gap-3">
+                                    {/* Foto del candidato como círculo */}
+                                    {candidate.photo_path && (
+                                      <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden bg-white/10 border border-white/20">
+                                        <img
+                                          src={candidate.photo_path}
+                                          alt={candidate.person_name}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.style.display =
+                                              "none";
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                    {/* Detalles del candidato */}
+                                    <div className="flex-1 space-y-1">
+                                      {candidate.discord_username && (
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-white/60 text-xs">
+                                            Discord:
+                                          </span>
+                                          <span className="text-white text-xs font-mono">
+                                            @{candidate.discord_username}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {candidate.distance !== undefined && (
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-white/60 text-xs">
+                                            Similitud:
+                                          </span>
+                                          <span className="text-blue-400 text-xs font-medium">
+                                            {(
+                                              (1 - candidate.distance) *
+                                              100
+                                            ).toFixed(1)}
+                                            %
+                                          </span>
+                                        </div>
+                                      )}
+                                      {candidate.linkedin_content && (
+                                        <p className="text-white/40 text-xs line-clamp-2">
+                                          {candidate.linkedin_content.substring(
+                                            0,
+                                            80
+                                          )}
+                                          ...
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
                 </div>
               )}
-
-              <div className="text-white/40 text-xs text-center">
-                Próxima verificación en {timeUntilNextCheck}s
-              </div>
             </div>
           )}
 
           {!matchResult && faceDetected && (
-            <div className="border-t border-white/20 pt-4">
+            <div className="border-t border-white/20 pt-4 flex-1 flex items-center justify-center">
               <div className="text-center text-white/60 text-sm">
                 Esperando verificación...
               </div>
@@ -593,7 +642,7 @@ export default function FaceRecognition({
           )}
 
           {!faceDetected && (
-            <div className="border-t border-white/20 pt-4">
+            <div className="border-t border-white/20 pt-4 flex-1 flex items-center justify-center">
               <div className="text-center text-white/60 text-sm">
                 Posiciona tu rostro frente a la cámara
               </div>
