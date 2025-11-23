@@ -39,7 +39,7 @@ async function generateGreetingText(personData: PersonData): Promise<string> {
   
   if (label) {
     // Si tiene label, es un familiar - generar prompt personalizado
-    prompt = `Tienes información sobre ${person_name}, quien es ${label}:\nNombre: ${person_name}\nRelación: ${label}`;
+    prompt = `Tienes información sobre ${person_name}, quien es ${label}:\nNombre: ${person_name}\nIMPORTANTE tu relación con esta persona, el es tu ${label}`;
     
     if (linkedin_content) {
       prompt += `\nLinkedIn: ${linkedin_content}`;

@@ -107,6 +107,24 @@ const truncateText = (text: string | null, maxLength: number): string => {
   return text.slice(0, maxLength) + "...";
 };
 
+// Función para generar un "power level" estilo Dragon Ball basado en el nombre
+// Esto genera un número consistente para la misma persona
+const generatePowerLevel = (personName: string | null): number => {
+  if (!personName) return Math.floor(Math.random() * 5000) + 1000;
+
+  // Crear un hash simple del nombre para generar un número consistente
+  let hash = 0;
+  for (let i = 0; i < personName.length; i++) {
+    const char = personName.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convertir a entero de 32 bits
+  }
+
+  // Generar un número entre 1000 y 9999 basado en el hash
+  const powerLevel = (Math.abs(hash) % 9000) + 1000;
+  return powerLevel;
+};
+
 const getCenter = (box: FaceBoxPercent) => ({
   x: box.x + box.width / 2,
   y: box.y + box.height / 2,
@@ -989,6 +1007,16 @@ export default function FaceRecognition({
                           )}
                         </div>
                       )}
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-white/50 text-[10px] font-mono tracking-wider">
+                        POWER LEVEL:
+                      </span>
+                      <span className="text-green-400 text-xs font-bold font-mono drop-shadow-md">
+                        {generatePowerLevel(
+                          face.matchResult.person_name
+                        ).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
