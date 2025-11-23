@@ -81,6 +81,10 @@ const createFaceDetectorOptions = () =>
     scoreThreshold: 0.3,
   });
 
+// Session-level cache for greeted persons
+// This persists across component remounts (navigation) but resets on page reload
+const greetedPersonsSession = new Set<string>();
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
@@ -293,7 +297,7 @@ export default function FaceRecognition({
   const [cacheTimeRemaining, setCacheTimeRemaining] = useState<number>(0);
   const abortControllersRef = useRef<Record<string, AbortController>>({});
   const faceIdRef = useRef(0);
-  const greetedPersonsRef = useRef<Set<string>>(new Set());
+  // Removed useRef for greetedPersons to use session-level Set instead
 
   // Check for camera permissions
   useEffect(() => {
@@ -612,7 +616,7 @@ export default function FaceRecognition({
           // 🎤 Generate and play voice greeting for matched person (only once per person)
           const personId = (formattedResult as any).person_id || formattedResult.person_name;
           
-          if (personId && !greetedPersonsRef.current.has(personId)) {
+          if (personId && !greetedPersonsSession.has(personId)) {
             const greetingData = {
               person_id: personId,
               person_name: formattedResult.person_name || 'Unknown',
@@ -623,12 +627,12 @@ export default function FaceRecognition({
             console.log('[FaceRecognition] 🎤 First time greeting for:', personId);
             
             // Mark as greeted immediately to prevent duplicates
-            greetedPersonsRef.current.add(personId);
+            greetedPersonsSession.add(personId);
             
             fetchAndPlayGreeting(greetingData).catch((error) => {
               console.error('[FaceRecognition] ❌ Error playing greeting:', error);
               // Remove from greeted set on error so it can be retried
-              greetedPersonsRef.current.delete(personId);
+              greetedPersonsSession.delete(personId);
             });
           } else {
             console.log('[FaceRecognition] ⏭️ Person already greeted, skipping voice generation');
