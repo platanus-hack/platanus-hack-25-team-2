@@ -67,18 +67,11 @@ const Hero = () => {
             <div>└─────────────────────────────────────────────────────────────┘</div>
           </div>
 
-          <p className="text-base md:text-lg text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed font-mono">
+          <p className="text-base md:text-lg text-gray-300 mb-16 max-w-4xl mx-auto leading-relaxed font-mono">
             &gt; LA FORMA MÁS NUEVA Y FÁCIL DE CONECTAR CON PERSONAS QUE IMPORTAN<br />
             &gt; CONSTRUYE RELACIONES SIGNIFICATIVAS CON PROFESIONALES<br />
             &gt; INVESTIGADORES Y ESTUDIANTES DE TODO EL MUNDO
           </p>
-
-          {/* Brutalist Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center mb-16">
-            <button className="group relative bg-transparent border border-gray-400 text-gray-400 px-8 py-4 font-mono text-sm tracking-wider hover:border-white hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] transition-all duration-300 uppercase">
-              <span className="relative z-10">[ SABER.MÁS ]</span>
-            </button>
-          </div>
         </div>
 
         {/* Technical Feature Grid */}

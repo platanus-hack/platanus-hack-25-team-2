@@ -1,7 +1,7 @@
 export const teamMembers = [
     {
         name: 'AGUSTÍN ARÉVALO',
-        role: 'CO.FOUNDER.CEO',
+        role: 'Forward Deployed Engineer',
         id: 'EMP001',
         clearance: 'LEVEL_9',
         bio: 'LÍDER VISIONARIO IMPULSANDO LA INNOVACIÓN EN NETWORKING PROFESIONAL. APASIONADO POR CONSTRUIR CONEXIONES SIGNIFICATIVAS.',
@@ -9,74 +9,69 @@ export const teamMembers = [
         terminal_id: 'AA_2847',
         image: '/AgustínArévalo.png',
         social: {
-            linkedin: 'https://linkedin.com',
+            linkedin: 'https://www.linkedin.com/in/agust%C3%ADn-ar%C3%A9valo-487878332/',
             instagram: 'https://instagram.com',
-            twitter: 'https://twitter.com',
-            github: 'https://github.com'
+            github: 'https://github.com/HechoEnChile'
         }
     },
     {
         name: 'DIEGO HUACCHA',
-        role: 'CO.FOUNDER.CTO',
+        role: 'Forward Deployed Engineer',
         id: 'EMP002',
         clearance: 'LEVEL_9',
-        bio: 'EXPERTO EN ARQUITECTURA ESCALABLE Y APRENDIZAJE AUTOMÁTICO. CONSTRUYENDO EL FUTURO DE LA TECNOLOGÍA DE REDES.',
+        bio: 'Pursuing an Ingeniería degree in Computer Software Engineering',
         status: 'ACTIVE',
         terminal_id: 'DH_1532',
         image: '/diegoHuaccha.jpeg',
         social: {
-            linkedin: 'https://linkedin.com',
-            instagram: 'https://instagram.com',
-            twitter: 'https://twitter.com',
-            github: 'https://github.com'
+            linkedin: 'https://www.linkedin.com/in/diego-huaccha-diestra/',
+            instagram: 'https://www.instagram.com/fk.diieggo/',
+            github: 'https://github.com/diieggo'
         }
     },
     {
         name: 'JAVIER VARGAS',
-        role: 'HEAD.OF.DESIGN',
+        role: 'Forward Deployed Engineer',
         id: 'EMP003',
-        clearance: 'LEVEL_7',
-        bio: 'DISEÑADOR GALARDONADO ENFOCADO EN CREAR EXPERIENCIAS DE USUARIO INTUITIVAS Y HERMOSAS A GRAN ESCALA.',
+        clearance: 'LEVEL_9',
+        bio: 'Tengo 18 años y estoy creando Logos.',
         status: 'ACTIVE',
         terminal_id: 'JV_9641',
         image: '/JavierVargas.png',
         social: {
-            linkedin: 'https://linkedin.com',
-            instagram: 'https://instagram.com',
-            twitter: 'https://twitter.com',
-            github: 'https://github.com'
+            linkedin: 'https://www.linkedin.com/in/javierdvt/',
+            instagram: 'https://www.instagram.com/javierdvt/',
+            github: 'https://github.com/javierdv7'
         }
     },
     {
         name: 'MARTÍN MUÑOZ',
-        role: 'HEAD.OF.PRODUCT',
+        role: 'Forward Deployed Engineer',
         id: 'EMP004',
-        clearance: 'LEVEL_7',
-        bio: 'ESTRATEGA DE PRODUCTO CON UN HISTORIAL COMPROBADO DE LANZAMIENTO DE PLATAFORMAS EXITOSAS A NIVEL MUNDIAL.',
+        clearance: 'LEVEL_9',
+        bio: 'I was invisible',
         status: 'ACTIVE',
         terminal_id: 'MM_7423',
         image: '/MartínMuñoz.png',
         social: {
-            linkedin: 'https://linkedin.com',
-            instagram: 'https://instagram.com',
-            twitter: 'https://twitter.com',
-            github: 'https://github.com'
+            linkedin: 'https://www.linkedin.com/in/munoncode/',
+            instagram: 'https://www.instagram.com/munoncode/',
+            github: 'https://github.com/munonzito'
         }
     },
     {
         name: 'SERGIO SALINAS',
-        role: 'LEAD.DEVELOPER',
+        role: 'Forward Deployed Engineer',
         id: 'EMP005',
-        clearance: 'LEVEL_8',
-        bio: 'DESARROLLADOR FULL-STACK COMPROMETIDO CON CONSTRUIR SOLUCIONES ROBUSTAS Y SEGURAS A ESCALA EMPRESARIAL.',
+        clearance: 'LEVEL_9',
+        bio: 'Me gusta vibecodear',
         status: 'ACTIVE',
         terminal_id: 'SS_5179',
         image: '/SergioSalinas.png',
         social: {
-            linkedin: 'https://linkedin.com',
-            instagram: 'https://instagram.com',
-            twitter: 'https://twitter.com',
-            github: 'https://github.com'
+            linkedin: 'https://www.linkedin.com/in/sergiosalinas-/',
+            instagram: 'https://www.instagram.com/shesxoo/',
+            github: 'https://github.com/shesxoo'
         }
     }
 ];
