@@ -125,3 +125,164 @@ Update thresholds in API endpoints:
 
 - `/api/match-faceapi`: Adjust `threshold` parameter
 - Frontend: Modify `use_cosine` and `threshold` in request body
+
+---
+
+## 📹 Raspberry Pi Camera Streaming
+
+### Problema
+
+Ejecutar el navegador directamente en Raspberry Pi es muy lento. Esta solución permite usar la Raspberry Pi solo para capturar video mientras tu computadora procesa el reconocimiento facial.
+
+### Solución: Streaming desde Raspberry Pi
+
+Hemos implementado **tres métodos** para transmitir video desde Raspberry Pi:
+
+#### 🌟 Método 1: WebSocket (Recomendado para desarrollo)
+
+**Ventajas:**
+
+- ✅ Configuración más simple
+- ✅ Baja latencia
+- ✅ Integración directa con React
+- ✅ No requiere servidor adicional
+
+**En Raspberry Pi:**
+
+```bash
+cd apps/raspberry-pi-streaming
+pip3 install -r requirements.txt
+python3 stream_camera.py --mode websocket --port 8765
+```
+
+**En tu App Web:**
+
+```bash
+# Edita .env.local en apps/web/
+NEXT_PUBLIC_USE_RASPBERRY_PI=true
+NEXT_PUBLIC_RASPBERRY_PI_WS=ws://192.168.1.100:8765
+```
+
+La app se conectará automáticamente al stream de Raspberry Pi.
+
+#### 🎬 Método 2: RTMP + OBS (Recomendado para producción)
+
+**Ventajas:**
+
+- ✅ Menor uso de CPU en Raspberry Pi
+- ✅ Calidad profesional
+- ✅ Permite overlays y efectos
+- ✅ Grabación opcional
+
+**Paso 1: Instalar servidor RTMP en tu computadora**
+
+```bash
+# Opción fácil con Docker
+docker run -d -p 1935:1935 -p 8080:8080 --name rtmp-server tiangolo/nginx-rtmp
+
+# O instalar nginx-rtmp manualmente
+brew install nginx-full --with-rtmp-module  # macOS
+sudo apt-get install nginx libnginx-mod-rtmp  # Linux
+```
+
+**Paso 2: Transmitir desde Raspberry Pi**
+
+```bash
+# Reemplaza TU_IP con la IP de tu computadora
+python3 stream_camera.py --mode rtmp --url rtmp://TU_IP:1935/live/stream
+```
+
+**Paso 3: Configurar OBS**
+
+1. Abre OBS Studio
+2. Sources → + → Media Source
+3. URL: `rtmp://localhost:1935/live/stream`
+4. Desmarcar "Local File"
+5. Tools → Start Virtual Camera
+6. En tu app web, selecciona "OBS Virtual Camera"
+
+Ver guía completa: [`apps/raspberry-pi-streaming/OBS_SETUP.md`](apps/raspberry-pi-streaming/OBS_SETUP.md)
+
+#### 📡 Método 3: HTTP/MJPEG (Más simple)
+
+**En Raspberry Pi:**
+
+```bash
+python3 stream_camera.py --mode http --port 8080
+```
+
+**Acceder al stream:**
+
+```
+http://192.168.1.100:8080/stream.mjpg
+```
+
+### Cambiar entre Cámara Local y Raspberry Pi
+
+En la interfaz de la app, usa el botón con icono de CPU (⚙️) para cambiar entre:
+
+- 🎥 Cámara local (webcam de tu computadora)
+- 🔌 Stream de Raspberry Pi
+
+### Documentación Completa
+
+- **Setup Raspberry Pi**: [`apps/raspberry-pi-streaming/README.md`](apps/raspberry-pi-streaming/README.md)
+- **Configuración OBS**: [`apps/raspberry-pi-streaming/OBS_SETUP.md`](apps/raspberry-pi-streaming/OBS_SETUP.md)
+- **Script de streaming**: [`apps/raspberry-pi-streaming/stream_camera.py`](apps/raspberry-pi-streaming/stream_camera.py)
+
+### Troubleshooting
+
+**No se conecta al WebSocket:**
+
+```bash
+# Verifica que el script esté corriendo
+ps aux | grep stream_camera
+
+# Verifica el puerto
+sudo netstat -tlnp | grep 8765
+
+# Test de conectividad
+ping 192.168.1.100
+```
+
+**Lag o stuttering:**
+
+```bash
+# Reduce resolución y FPS
+python3 stream_camera.py --mode websocket --width 320 --height 240 --fps 15
+
+# Usa cable ethernet en lugar de WiFi
+```
+
+**Ver logs:**
+
+```bash
+# En Raspberry Pi
+journalctl -u stream_camera -f
+```
+
+---
+
+## 🚀 Quick Start
+
+### Desarrollo Local (sin Raspberry Pi)
+
+```bash
+npm install
+cd apps/web
+npm run dev
+```
+
+### Con Raspberry Pi
+
+```bash
+# Terminal 1: Raspberry Pi
+cd apps/raspberry-pi-streaming
+python3 stream_camera.py --mode websocket
+
+# Terminal 2: Tu computadora
+cd apps/web
+npm run dev
+```
+
+Abre `http://localhost:3000` y haz clic en el botón de CPU para activar el stream de Raspberry Pi.

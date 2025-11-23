@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     // Obtener todas las personas conocidas con embedding de 512 dimensiones
     const { data: knownPeople, error } = await supabase
       .from('known_people')
-      .select('id, full_name, face_encoding, face_encoding_deepface_512, linkedin_content, discord_username, photo_path')
+      .select('id, full_name, face_encoding, face_encoding_deepface_512, linkedin_content, discord_username, photo_path, label')
       .or('face_encoding.not.is.null,face_encoding_deepface_512.not.is.null');
 
     if (error) {
@@ -257,6 +257,7 @@ export async function POST(request: NextRequest) {
         linkedin_content: bestMatch.person.linkedin_content,
         discord_username: bestMatch.person.discord_username,
         photo_path: bestMatch.person.photo_path,
+        label: bestMatch.person.label,
         message: `Match encontrado: ${bestMatch.person.full_name}`,
       });
     } else {
@@ -267,6 +268,7 @@ export async function POST(request: NextRequest) {
         linkedin_content: candidate.person.linkedin_content,
         discord_username: candidate.person.discord_username,
         photo_path: candidate.person.photo_path,
+        label: candidate.person.label,
       }));
 
       const message = bestMatch

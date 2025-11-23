@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Obtener todas las personas conocidas con embedding de face-api
     const { data: knownPeople, error } = await supabase
       .from('known_people')
-      .select('id, full_name, face_encoding_faceapi, linkedin_content, discord_username, photo_path')
+      .select('id, full_name, face_encoding_faceapi, linkedin_content, discord_username, photo_path, label')
       .not('face_encoding_faceapi', 'is', null);
 
     if (error || !knownPeople || knownPeople.length === 0) {
@@ -122,6 +122,7 @@ export async function POST(request: NextRequest) {
         linkedin_content: bestMatch.person.linkedin_content,
         discord_username: bestMatch.person.discord_username,
         photo_path: bestMatch.person.photo_path,
+        label: bestMatch.person.label,
         message: `Match encontrado (Face-API): ${bestMatch.person.full_name}`,
       });
     } else {
@@ -132,6 +133,7 @@ export async function POST(request: NextRequest) {
         linkedin_content: candidate.person.linkedin_content,
         discord_username: candidate.person.discord_username,
         photo_path: candidate.person.photo_path,
+        label: candidate.person.label,
       }));
 
       const message = bestMatch

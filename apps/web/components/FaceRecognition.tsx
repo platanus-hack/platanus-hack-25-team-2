@@ -27,6 +27,7 @@ interface Candidate {
   photo_path?: string;
   linkedin_content?: string;
   distance?: number;
+  label?: string | null;
 }
 
 interface MatchResult {
@@ -38,6 +39,7 @@ interface MatchResult {
   linkedin_content?: string | null;
   discord_username?: string | null;
   photo_path?: string | null;
+  label?: string | null;
   candidates?: Candidate[];
   message: string;
 }
@@ -87,6 +89,23 @@ const greetedPersonsSession = new Set<string>();
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+// Función para extraer el headline de linkedin_content
+const extractHeadline = (
+  linkedinContent: string | null | undefined
+): string | null => {
+  if (!linkedinContent) return null;
+
+  const headlineMatch = linkedinContent.match(/Headline:\s*(.+?)(?:\n|$)/i);
+  return headlineMatch ? headlineMatch[1].trim() : null;
+};
+
+// Función para truncar texto con límite de caracteres
+const truncateText = (text: string | null, maxLength: number): string => {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + "...";
+};
 
 const getCenter = (box: FaceBoxPercent) => ({
   x: box.x + box.width / 2,
@@ -578,6 +597,7 @@ export default function FaceRecognition({
               linkedin_content: result.linkedin_content || null,
               discord_username: result.discord_username || null,
               photo_path: result.photo_path || null,
+              label: result.label || null,
               message:
                 result.message || `Match encontrado: ${result.person_name}`,
             }
@@ -595,6 +615,7 @@ export default function FaceRecognition({
               linkedin_content: null,
               discord_username: null,
               photo_path: null,
+              label: null,
               message: result.message || "No se encontró match",
             };
 
@@ -606,36 +627,48 @@ export default function FaceRecognition({
 
         // Actualizar cache de última persona identificada si hay match exitoso
         if (formattedResult.match_found) {
-          console.log('[FaceRecognition] ✅ Match found! Full result:', formattedResult);
-          
+          console.log(
+            "[FaceRecognition] ✅ Match found! Full result:",
+            formattedResult
+          );
+
           setLastIdentifiedPerson({
             result: formattedResult,
             timestamp: Date.now(),
           });
 
           // 🎤 Generate and play voice greeting for matched person (only once per person)
-          const personId = (formattedResult as any).person_id || formattedResult.person_name;
-          
+          const personId =
+            (formattedResult as any).person_id || formattedResult.person_name;
+
           if (personId && !greetedPersonsSession.has(personId)) {
             const greetingData = {
               person_id: personId,
-              person_name: formattedResult.person_name || 'Unknown',
+              person_name: formattedResult.person_name || "Unknown",
               linkedin_content: formattedResult.linkedin_content || undefined,
               discord_username: formattedResult.discord_username || undefined,
             };
-            
-            console.log('[FaceRecognition] 🎤 First time greeting for:', personId);
-            
+
+            console.log(
+              "[FaceRecognition] 🎤 First time greeting for:",
+              personId
+            );
+
             // Mark as greeted immediately to prevent duplicates
             greetedPersonsSession.add(personId);
-            
+
             fetchAndPlayGreeting(greetingData).catch((error) => {
-              console.error('[FaceRecognition] ❌ Error playing greeting:', error);
+              console.error(
+                "[FaceRecognition] ❌ Error playing greeting:",
+                error
+              );
               // Remove from greeted set on error so it can be retried
               greetedPersonsSession.delete(personId);
             });
           } else {
-            console.log('[FaceRecognition] ⏭️ Person already greeted, skipping voice generation');
+            console.log(
+              "[FaceRecognition] ⏭️ Person already greeted, skipping voice generation"
+            );
           }
         }
       } catch (error) {
@@ -929,10 +962,32 @@ export default function FaceRecognition({
 
                 {/* Minimal Name Tag */}
                 {face.matchResult?.match_found && (
-                  <div className="absolute -top-8 left-0">
-                    <div className="text-white font-medium text-sm tracking-wide drop-shadow-md">
-                      {face.matchResult.person_name}
+                  <div className="absolute -top-12 left-0 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className="text-white font-medium text-sm tracking-wide drop-shadow-md">
+                        {face.matchResult.person_name}
+                      </div>
+                      {face.matchResult.label && (
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-md font-medium drop-shadow-md capitalize ${
+                            face.matchResult.label.toLowerCase() === "cuidado"
+                              ? "bg-red-500/90 text-white"
+                              : "bg-blue-500/90 text-white"
+                          }`}
+                        >
+                          {face.matchResult.label}
+                        </span>
+                      )}
                     </div>
+                    {face.matchResult.linkedin_content &&
+                      extractHeadline(face.matchResult.linkedin_content) && (
+                        <div className="text-white/80 text-xs tracking-wide drop-shadow-md max-w-[300px]">
+                          {truncateText(
+                            extractHeadline(face.matchResult.linkedin_content)!,
+                            100
+                          )}
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
@@ -970,10 +1025,37 @@ export default function FaceRecognition({
                 </div>
                 <div className="bg-neutral-900/50 rounded-xl p-6 border border-white/5">
                   <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h2 className="text-white font-semibold text-lg leading-tight">
-                        {lastIdentifiedPerson.result.person_name}
-                      </h2>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="text-white font-semibold text-lg leading-tight">
+                          {lastIdentifiedPerson.result.person_name}
+                        </h2>
+                        {lastIdentifiedPerson.result.label && (
+                          <span
+                            className={`text-xs px-2 py-1 rounded-md font-medium ${
+                              lastIdentifiedPerson.result.label.toLowerCase() ===
+                              "cuidado"
+                                ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                            }`}
+                          >
+                            {lastIdentifiedPerson.result.label}
+                          </span>
+                        )}
+                      </div>
+                      {lastIdentifiedPerson.result.linkedin_content &&
+                        extractHeadline(
+                          lastIdentifiedPerson.result.linkedin_content
+                        ) && (
+                          <p className="text-white/60 text-sm mt-2 leading-relaxed">
+                            {truncateText(
+                              extractHeadline(
+                                lastIdentifiedPerson.result.linkedin_content
+                              )!,
+                              80
+                            )}
+                          </p>
+                        )}
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs px-2 py-1 rounded-md font-medium bg-green-500/10 text-green-400">
                           {lastIdentifiedPerson.result.confidence ||
@@ -981,7 +1063,7 @@ export default function FaceRecognition({
                         </span>
                       </div>
                     </div>
-                    <div className="w-2 h-2 rounded-full bg-green-400" />
+                    <div className="w-2 h-2 rounded-full bg-green-400 shrink-0 ml-2" />
                   </div>
 
                   {lastIdentifiedPerson.result.distance !== null && (
@@ -1005,24 +1087,6 @@ export default function FaceRecognition({
                         <div className="text-white font-mono text-base">
                           {lastIdentifiedPerson.result.distance.toFixed(4)}
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {lastIdentifiedPerson.result.photo_path && (
-                    <div className="mt-4 rounded-xl overflow-hidden border border-white/10 bg-black aspect-video relative group">
-                      <img
-                        src={lastIdentifiedPerson.result.photo_path}
-                        alt="Reference"
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black/90 to-transparent">
-                        <span className="text-xs text-white/60">
-                          Foto de Referencia
-                        </span>
                       </div>
                     </div>
                   )}
@@ -1103,14 +1167,37 @@ export default function FaceRecognition({
 
                     <div className="bg-neutral-900/50 rounded-xl p-6 border border-white/5">
                       <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h2 className="text-white font-semibold text-lg leading-tight">
-                            {result
-                              ? result.match_found
-                                ? result.person_name
-                                : "Identidad desconocida"
-                              : "Procesando rostro..."}
-                          </h2>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h2 className="text-white font-semibold text-lg leading-tight">
+                              {result
+                                ? result.match_found
+                                  ? result.person_name
+                                  : "Identidad desconocida"
+                                : "Procesando rostro..."}
+                            </h2>
+                            {result?.match_found && result.label && (
+                              <span
+                                className={`text-xs px-2 py-1 rounded-md font-medium ${
+                                  result.label.toLowerCase() === "cuidado"
+                                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                    : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                                }`}
+                              >
+                                {result.label}
+                              </span>
+                            )}
+                          </div>
+                          {result?.match_found &&
+                            result.linkedin_content &&
+                            extractHeadline(result.linkedin_content) && (
+                              <p className="text-white/60 text-sm mt-2 leading-relaxed">
+                                {truncateText(
+                                  extractHeadline(result.linkedin_content)!,
+                                  80
+                                )}
+                              </p>
+                            )}
                           <div className="flex items-center gap-2 mt-2">
                             {result ? (
                               <span
@@ -1150,7 +1237,7 @@ export default function FaceRecognition({
                           </div>
                         </div>
                         <div
-                          className={`w-2 h-2 rounded-full ${
+                          className={`w-2 h-2 rounded-full shrink-0 ml-2 ${
                             face.isProcessing
                               ? "bg-blue-400 animate-pulse"
                               : result?.match_found
@@ -1190,24 +1277,6 @@ export default function FaceRecognition({
 
                     {result?.match_found && (
                       <div className="space-y-4">
-                        {result.photo_path && (
-                          <div className="rounded-xl overflow-hidden border border-white/10 bg-black aspect-video relative group">
-                            <img
-                              src={result.photo_path}
-                              alt="Reference"
-                              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black/90 to-transparent">
-                              <span className="text-xs text-white/60">
-                                Foto de Referencia
-                              </span>
-                            </div>
-                          </div>
-                        )}
-
                         <div className="space-y-2">
                           {result.discord_username && (
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
