@@ -10,9 +10,9 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <span className="text-xl font-bold text-white tracking-wider">
-              [ CONNECT<span className="text-gray-400">.US</span> ]
+              [ RECORD<span className="text-gray-400">.AI</span> ]
             </span>
-            <span className="text-gray-600 text-xs ml-4">v2.1.7</span>
+            <span className="text-gray-600 text-xs ml-4">v1.0.0</span>
           </div>
 
           {/* Desktop Menu */}

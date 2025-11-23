@@ -7,6 +7,7 @@ node_modules
 /coverage
 *.lcov
 .nyc_output
+coverage/
 
 # Production builds
 dist
@@ -63,6 +64,7 @@ Desktop.ini
 .vite
 .eslintcache
 .stylelintcache
+.turbo
 
 # Temporary files
 *.tmp
@@ -101,3 +103,23 @@ yarn-error.log*
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Lock files (optional - uncomment if you don't want to track them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Local development
+.history/
+*.local
+
+# Storybook
+storybook-static
+
+# TypeScript
+*.tsbuildinfo
+
+# Analytics and monitoring
+.sentryclirc
+CLAUDE.md
+realinfo.txt

@@ -72,7 +72,7 @@ const Testimonials = () => {
           </div>
 
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 uppercase tracking-wider">
-            WHAT.OUR.USERS.SAY
+            LO.QUE.DICEN.NUESTROS.USUARIOS
           </h2>
 
           <div className="text-gray-500 text-sm font-mono mb-8">
@@ -80,9 +80,9 @@ const Testimonials = () => {
           </div>
 
           <p className="text-lg text-gray-300 max-w-4xl mx-auto uppercase tracking-wide leading-relaxed">
-            &gt; JOIN THOUSANDS OF PROFESSIONALS, RESEARCHERS,<br />
-            &gt; AND STUDENTS WHO HAVE TRANSFORMED THEIR<br />
-            &gt; NETWORKING EXPERIENCE
+            &gt; ÚNETE A MILES DE PROFESIONALES, INVESTIGADORES<br />
+            &gt; Y ESTUDIANTES QUE HAN TRANSFORMADO SU<br />
+            &gt; EXPERIENCIA DE NETWORKING
           </p>
         </div>
 

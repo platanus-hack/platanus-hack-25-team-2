@@ -25,21 +25,6 @@ const About = () => {
         />
       </div>
 
-      {/* Technical System Info */}
-      <div className="absolute top-8 left-8 text-gray-400 text-xs font-mono z-20">
-        <div>MODULE: PLATFORM_INFO.exe</div>
-        <div>VERSION: v1.8.3</div>
-        <div>STATUS: OPERATIONAL</div>
-        <div>UPTIME: 99.99%</div>
-      </div>
-
-      <div className="absolute top-8 right-8 text-gray-400 text-xs font-mono z-20">
-        <div>DATABASE: CONNECTED</div>
-        <div>USERS_ACTIVE: 10,247</div>
-        <div>LOAD_AVG: 0.23</div>
-        <div>MEM_USAGE: 67%</div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-8 relative z-10">
         {/* Header Section */}
         <div className="text-center mb-20">
@@ -48,7 +33,7 @@ const About = () => {
           </div>
           
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 uppercase tracking-wider">
-            SOBRE.NUESTRA.PLATAFORMA
+            SOBRE.RECORD.AI
           </h2>
 
           <div className="text-gray-500 text-sm font-mono mb-8">
@@ -56,8 +41,8 @@ const About = () => {
           </div>
 
           <p className="text-base md:text-lg text-gray-300 max-w-4xl mx-auto uppercase tracking-wide leading-relaxed">
-            &gt; ESTAMOS REVOLUCIONANDO CÓMO LOS PROFESIONALES, INVESTIGADORES<br />
-            &gt; Y ESTUDIANTES SE CONECTAN EN LA ERA DIGITAL
+            &gt; EL CEREBRO HUMANO TIENE LÍMITES. LA MEMORIA ES UNO<br />
+            &gt; ESPECIALMENTE MOLESTO. NOSOTROS ROMPEMOS ESOS LÍMITES
           </p>
         </div>
 
@@ -80,17 +65,16 @@ const About = () => {
 
               <div className="text-gray-300 text-sm font-mono leading-relaxed space-y-4 uppercase">
                 <p>
-                  &gt; CREEMOS QUE LAS CONEXIONES SIGNIFICATIVAS IMPULSAN<br />
-                  &gt; LA INNOVACIÓN Y EL PROGRESO. NUESTRA PLATAFORMA ESTÁ<br />
-                  &gt; DISEÑADA PARA DERRIBAR BARRERAS Y HACER QUE EL<br />
-                  &gt; NETWORKING PROFESIONAL SEA ACCESIBLE, INTUITIVO<br />
-                  &gt; Y AGRADABLE PARA TODOS.
+                  &gt; ¿A QUIÉN NO LE HA PASADO? ESTÁN EN UN EVENTO,<br />
+                  &gt; VEN A ALGUIEN IMPORTANTE Y LA MENTE SE QUEDA<br />
+                  &gt; EN BLANCO. OLVIDAMOS SU NOMBRE, SU CARGO<br />
+                  &gt; O DE QUÉ SE HABLÓ LA ÚLTIMA VEZ.
                 </p>
                 <p className="mt-4">
-                  &gt; YA SEAS UN INVESTIGADOR BUSCANDO COLABORADORES,<br />
-                  &gt; UN ESTUDIANTE EN BUSCA DE MENTORES, O UN PROFESIONAL<br />
-                  &gt; EXPANDIENDO TU RED, PROPORCIONAMOS LAS HERRAMIENTAS<br />
-                  &gt; Y LA COMUNIDAD PARA AYUDARTE A TENER ÉXITO.
+                  &gt; RECORD.AI ES UN SISTEMA QUE PERMITE IDENTIFICAR<br />
+                  &gt; Y ANALIZAR PERSONAS EN UN ENTORNO SOCIAL A TRAVÉS<br />
+                  &gt; DE SOLAMENTE SU IMAGEN. INGENIERÍA PURA:<br />
+                  &gt; VIDEO, EMBEDDINGS FACIALES Y BÚSQUEDA VECTORIAL.
                 </p>
               </div>
               
@@ -124,12 +108,12 @@ const About = () => {
                 <div>
                   <div className="text-gray-400 text-xs font-mono mb-2">FEATURE_01.exe</div>
                   <h4 className="text-lg font-bold text-white mb-3 uppercase tracking-wider">
-                    ORIENTADO.AL.PROPÓSITO
+                    RECONOCIMIENTO.INSTANTÁNEO
                   </h4>
                   <p className="text-gray-400 text-sm font-mono uppercase leading-relaxed">
-                    &gt; CADA CARACTERÍSTICA ESTÁ DISEÑADA PENSANDO<br />
-                    &gt; EN TU CRECIMIENTO PROFESIONAL, AYUDÁNDOTE<br />
-                    &gt; A ALCANZAR TUS METAS DE CARRERA MÁS RÁPIDO.
+                    &gt; CAPTURA VIDEO, PROCESA EMBEDDINGS<br />
+                    &gt; FACIALES CON MODELOS DE DEEP LEARNING<br />
+                    &gt; Y EJECUTA BÚSQUEDA VECTORIAL AL INSTANTE.
                   </p>
                 </div>
               </div>
@@ -161,12 +145,12 @@ const About = () => {
                 <div>
                   <div className="text-gray-400 text-xs font-mono mb-2">FEATURE_02.exe</div>
                   <h4 className="text-lg font-bold text-white mb-3 uppercase tracking-wider">
-                    COMUNIDAD.GLOBAL
+                    OPTIMIZADO.EN.VIVO
                   </h4>
                   <p className="text-gray-400 text-sm font-mono uppercase leading-relaxed">
-                    &gt; CONECTA CON PROFESIONALES DE TODO<br />
-                    &gt; EL MUNDO, ROMPIENDO BARRERAS GEOGRÁFICAS<br />
-                    &gt; PARA ENCONTRAR LOS COLABORADORES PERFECTOS.
+                    &gt; TODO OPTIMIZADO PARA CORRER EN VIVO.<br />
+                    &gt; PROCESAMIENTO EN TIEMPO REAL<br />
+                    &gt; CON LATENCIA MÍNIMA.
                   </p>
                 </div>
               </div>
@@ -192,12 +176,12 @@ const About = () => {
                 <div>
                   <div className="text-gray-400 text-xs font-mono mb-2">FEATURE_03.exe</div>
                   <h4 className="text-lg font-bold text-white mb-3 uppercase tracking-wider">
-                    PRIVACIDAD.PRIMERO
+                    ACCESIBILIDAD.COGNITIVA
                   </h4>
                   <p className="text-gray-400 text-sm font-mono uppercase leading-relaxed">
-                    &gt; TUS DATOS SON TUYOS. PRIORIZAMOS LA SEGURIDAD<br />
-                    &gt; Y LA TRANSPARENCIA, ASEGURANDO QUE SIEMPRE<br />
-                    &gt; TENGAS EL CONTROL DE TU INFORMACIÓN.
+                    &gt; MÁS ALLÁ DE QUEDAR BIEN EN UNA REUNIÓN.<br />
+                    &gt; ENFÓCATE EN LO QUE REALMENTE IMPORTA:<br />
+                    &gt; LA PERSONA QUE TIENES ENFRENTE.
                   </p>
                 </div>
               </div>

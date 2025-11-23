@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import ProductShowcase from './components/ProductShowcase';
 import About from './components/About';
 import Team from './components/Team';
 import Testimonials from './components/Testimonials';
@@ -29,9 +28,6 @@ function App() {
       <main>
         <section id="home">
           <Hero />
-        </section>
-        <section id="product">
-          <ProductShowcase />
         </section>
         <section id="about">
           <About />

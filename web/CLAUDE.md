@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ConnectHub is a modern social media platform website built with React.js, Vite, and Tailwind CSS. The site features a 3D product showcase using Gaussian Splat rendering for smart glasses, with a distinctive terminal/technical aesthetic throughout. Target audience is professionals, researchers, and students aged 18-40.
+RecordAI is a facial recognition system website built with React.js, Vite, and Tailwind CSS. The site features a 3D product showcase using Gaussian Splat rendering for smart glasses, with a distinctive terminal/technical aesthetic throughout. RecordAI provides real-time facial recognition and cognitive accessibility for social events, helping people remember faces, names, and context when memory fails. Target audience includes event attendees, professionals in networking scenarios, and those seeking cognitive assistance.
 
 ## Development Commands
 

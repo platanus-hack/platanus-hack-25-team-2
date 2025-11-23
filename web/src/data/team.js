@@ -4,7 +4,7 @@ export const teamMembers = [
         role: 'Forward Deployed Engineer',
         id: 'EMP001',
         clearance: 'LEVEL_9',
-        bio: 'LÍDER VISIONARIO IMPULSANDO LA INNOVACIÓN EN NETWORKING PROFESIONAL. APASIONADO POR CONSTRUIR CONEXIONES SIGNIFICATIVAS.',
+        bio: 'i love rockets',
         status: 'ACTIVE',
         terminal_id: 'AA_2847',
         image: '/AgustínArévalo.png',

@@ -31,16 +31,16 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-xl font-bold mb-4 tracking-wider">
-              [ CONNECT<span className="text-gray-500">.US</span> ]
+              [ RECORD<span className="text-gray-500">.AI</span> ]
             </h3>
             <div className="text-gray-400 text-xs mb-2">
-              <div>VERSION: v2.1.7</div>
+              <div>VERSION: v1.0.0</div>
               <div>BUILD: 2025.11.22</div>
               <div>STATUS: OPERATIONAL</div>
             </div>
             <p className="text-gray-400 text-sm mb-4 max-w-md uppercase leading-relaxed">
-              &gt; LA FORMA MÁS NUEVA Y FÁCIL DE CONECTAR CON<br />
-              &gt; PROFESIONALES, INVESTIGADORES Y ESTUDIANTES DE TODO EL MUNDO.
+              &gt; RECONOCIMIENTO FACIAL EN TIEMPO REAL<br />
+              &gt; ACCESIBILIDAD COGNITIVA PARA EVENTOS SOCIALES
             </p>
             <div className="flex space-x-4 text-gray-400">
               {/* Facebook */}
@@ -93,8 +93,8 @@ const Footer = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
           <div className="text-gray-500 text-xs font-mono">
-            <div>COPYRIGHT © {new Date().getFullYear()} CONNECTHUB_SYSTEMS</div>
-            <div>ALL_RIGHTS_RESERVED | BUILT_FOR_PROFESSIONALS_WORLDWIDE</div>
+            <div>COPYRIGHT © {new Date().getFullYear()} RECORD.AI_SYSTEMS</div>
+            <div>ALL_RIGHTS_RESERVED | ACCESIBILIDAD_COGNITIVA_PARA_TODOS</div>
             <div className="mt-2">CHECKSUM: A7F3E9D2 | INTEGRITY: VERIFIED</div>
           </div>
         </div>

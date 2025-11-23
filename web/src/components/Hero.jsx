@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Suspense } from 'react';
+import SplatViewer from './SplatViewer';
 
 const Hero = () => {
   return (
@@ -53,25 +54,105 @@ const Hero = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-mono font-bold text-white mb-2 tracking-wider leading-tight">
-            CONECTA.COMO
+            RECORD.AI
           </h1>
           <h2 className="text-3xl md:text-5xl font-mono font-bold text-gray-300 mb-8 tracking-wider">
-            NUNCA.ANTES
+            NUNCA.OLVIDES.UN.ROSTRO
           </h2>
-          
+
           <div className="text-gray-500 text-sm font-mono mb-8">
             <div>┌─────────────────────────────────────────────────────────────┐</div>
-            <div>│ PROTOCOL: PROFESSIONAL_NETWORKING_v3.0                     │</div>
-            <div>│ ENCRYPTION: AES-256                                         │</div>
-            <div>│ LATENCY: LOW                                                │</div>
+            <div>│ PROTOCOL: FACIAL_RECOGNITION_v1.0                          │</div>
+            <div>│ ENGINE: DEEP_LEARNING                                       │</div>
+            <div>│ LATENCY: REAL-TIME                                          │</div>
             <div>└─────────────────────────────────────────────────────────────┘</div>
           </div>
 
           <p className="text-base md:text-lg text-gray-300 mb-16 max-w-4xl mx-auto leading-relaxed font-mono">
-            &gt; LA FORMA MÁS NUEVA Y FÁCIL DE CONECTAR CON PERSONAS QUE IMPORTAN<br />
-            &gt; CONSTRUYE RELACIONES SIGNIFICATIVAS CON PROFESIONALES<br />
-            &gt; INVESTIGADORES Y ESTUDIANTES DE TODO EL MUNDO
+            &gt; IDENTIFICA Y RECONOCE PERSONAS EN TIEMPO REAL<br />
+            &gt; ACCESIBILIDAD COGNITIVA PARA EVENTOS SOCIALES<br />
+            &gt; EL CEREBRO TIENE LÍMITES. NOSOTROS LOS ROMPEMOS
           </p>
+        </div>
+
+        {/* Visual Showcase - 3D Model + Face Recognition Demo */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+          {/* 3D Glasses Model */}
+          <div className="relative">
+            <div className="border border-gray-600 bg-black relative overflow-hidden aspect-[4/3]">
+              {/* Corner markers */}
+              <div className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-white z-20"></div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 border-t-2 border-r-2 border-white z-20"></div>
+              <div className="absolute -bottom-2 -left-2 w-6 h-6 border-b-2 border-l-2 border-white z-20"></div>
+              <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-white z-20"></div>
+
+              {/* Labels */}
+              <div className="absolute top-3 left-3 text-gray-400 text-xs font-mono z-20">
+                <div>[3D_MODEL]</div>
+                <div>INTERACTIVE</div>
+              </div>
+
+              <div className="absolute top-3 right-3 text-gray-400 text-xs font-mono z-20">
+                <div>SPLAT_VIEWER</div>
+                <div>LOADING...</div>
+              </div>
+
+              {/* 3D Model Viewer */}
+              <Suspense fallback={
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <div className="border-2 border-white w-10 h-10 border-t-transparent animate-spin mx-auto mb-3"></div>
+                    <div className="text-xs font-mono">CARGANDO_MODELO_3D...</div>
+                  </div>
+                </div>
+              }>
+                <SplatViewer />
+              </Suspense>
+
+              {/* Controls Info */}
+              <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none z-10">
+                <div className="bg-black/80 border border-gray-600 inline-block px-4 py-1 font-mono text-xs text-gray-400">
+                  [ ARRASTRA ] ROTAR | [ SCROLL ] ZOOM
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Face Recognition Demo Image */}
+          <div className="relative">
+            <div className="border border-gray-600 bg-black relative overflow-hidden aspect-[4/3]">
+              {/* Corner markers */}
+              <div className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-white z-20"></div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 border-t-2 border-r-2 border-white z-20"></div>
+              <div className="absolute -bottom-2 -left-2 w-6 h-6 border-b-2 border-l-2 border-white z-20"></div>
+              <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-white z-20"></div>
+
+              {/* Labels */}
+              <div className="absolute top-3 left-3 text-gray-400 text-xs font-mono z-20 bg-black/80 px-2 py-1">
+                <div>[FACE_ID_SYSTEM]</div>
+                <div>STATUS: ACTIVE</div>
+              </div>
+
+              <div className="absolute top-3 right-3 text-gray-400 text-xs font-mono z-20 bg-black/80 px-2 py-1">
+                <div>REAL-TIME</div>
+                <div>PROCESSING</div>
+              </div>
+
+              {/* Main Image */}
+              <img
+                src="/imagenhero.jpeg"
+                alt="Face Recognition System Demo"
+                className="w-full h-full object-cover"
+              />
+
+              {/* Info Overlay */}
+              <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none z-10">
+                <div className="bg-black/80 border border-gray-600 inline-block px-4 py-1 font-mono text-xs text-gray-400">
+                  RECONOCIMIENTO_FACIAL_EN_ACCIÓN
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Technical Feature Grid */}
@@ -111,12 +192,12 @@ const Hero = () => {
             </div>
             
             <h3 className="text-lg font-mono font-bold text-white mb-4 uppercase tracking-wider">
-              CONECTA.INSTANTÁNEAMENTE
+              RECONOCIMIENTO.FACIAL
             </h3>
             <p className="text-gray-400 text-sm font-mono leading-relaxed uppercase">
-              &gt; ENCUENTRA Y CONECTA CON PROFESIONALES<br />
-              &gt; EN SEGUNDOS USANDO PROTOCOLOS DE<br />
-              &gt; ALGORITMOS DE COINCIDENCIA AVANZADOS
+              &gt; IDENTIFICA PERSONAS INSTANTÁNEAMENTE<br />
+              &gt; MEDIANTE EMBEDDINGS FACIALES Y<br />
+              &gt; BÚSQUEDA VECTORIAL EN TIEMPO REAL
             </p>
             
             <div className="text-gray-600 text-xs font-mono mt-4">
@@ -155,12 +236,12 @@ const Hero = () => {
             </div>
             
             <h3 className="text-lg font-mono font-bold text-white mb-4 uppercase tracking-wider">
-              EXPANDE.TU.RED
+              PROCESAMIENTO.EN.VIVO
             </h3>
             <p className="text-gray-400 text-sm font-mono leading-relaxed uppercase">
-              &gt; AMPLÍA TU CÍRCULO PROFESIONAL<br />
-              &gt; SIN ESFUERZO Y DESBLOQUEA NUEVAS<br />
-              &gt; OPORTUNIDADES DE CARRERA
+              &gt; CAPTURA VIDEO Y PROCESA<br />
+              &gt; EMBEDDINGS CON DEEP LEARNING<br />
+              &gt; OPTIMIZADO PARA EJECUCIÓN EN TIEMPO REAL
             </p>
             
             <div className="text-gray-600 text-xs font-mono mt-4">
@@ -190,12 +271,12 @@ const Hero = () => {
             </div>
             
             <h3 className="text-lg font-mono font-bold text-white mb-4 uppercase tracking-wider">
-              COMPARTE.IDEAS
+              ACCESIBILIDAD.COGNITIVA
             </h3>
             <p className="text-gray-400 text-sm font-mono leading-relaxed uppercase">
-              &gt; COLABORA E INNOVA CON PERSONAS<br />
-              &gt; AFINES EN PROTOCOLOS DEDICADOS<br />
-              &gt; A GRUPOS DE INTERÉS
+              &gt; ROMPE LOS LÍMITES BIOLÓGICOS<br />
+              &gt; DE LA MEMORIA HUMANA Y ENFÓCATE<br />
+              &gt; EN LA PERSONA QUE TIENES ENFRENTE
             </p>
             
             <div className="text-gray-600 text-xs font-mono mt-4">
