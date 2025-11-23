@@ -13,12 +13,13 @@ interface RequestBody {
   person_name: string;
   linkedin_content?: string;
   discord_username?: string;
+  label?: string;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: RequestBody = await request.json();
-    const { person_id, person_name, linkedin_content, discord_username } = body;
+    const { person_id, person_name, linkedin_content, discord_username, label } = body;
 
     // Validate required fields
     if (!person_id || !person_name) {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
       person_name,
       linkedin_content,
       discord_username,
+      label,
     });
 
     if (!result.success) {

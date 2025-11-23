@@ -18,6 +18,7 @@ interface PersonData {
   person_name: string;
   linkedin_content?: string;
   discord_username?: string;
+  label?: string;
 }
 
 interface VoiceGreetingResult {
@@ -31,16 +32,30 @@ interface VoiceGreetingResult {
  * Generate a personalized text greeting using Claude AI
  */
 async function generateGreetingText(personData: PersonData): Promise<string> {
-  const { person_name, linkedin_content } = personData;
+  const { person_name, linkedin_content, label } = personData;
 
   // Build the prompt with available information
-  let prompt = `Tienes información sobre esta persona:\nNombre: ${person_name}`;
-
-  if (linkedin_content) {
-    prompt += `\nLinkedIn: ${linkedin_content}`;
+  let prompt: string;
+  
+  if (label) {
+    // Si tiene label, es un familiar - generar prompt personalizado
+    prompt = `Tienes información sobre ${person_name}, quien es ${label}:\nNombre: ${person_name}\nRelación: ${label}`;
+    
+    if (linkedin_content) {
+      prompt += `\nLinkedIn: ${linkedin_content}`;
+    }
+    
+    prompt += '\n\nHáblame sobre quién es esta persona como si fuera un familiar mío. Resúmelo en una sola oración de forma amigable, conversacional y breve, como si me estuvieras contando sobre este familiar. Solo responde con texto natural.';
+  } else {
+    // Prompt normal para personas sin label
+    prompt = `Tienes información sobre esta persona:\nNombre: ${person_name}`;
+    
+    if (linkedin_content) {
+      prompt += `\nLinkedIn: ${linkedin_content}`;
+    }
+    
+    prompt += '\n\n¿Quién es esta persona? Resúmelo en una sola oración de forma amigable, conversacional y breve. Solo responde con texto natural.';
   }
-
-  prompt += '\n\n¿Quién es esta persona? Resúmelo en una sola oración de forma amigable, conversacional y breve. Solo responde con texto natural.';
 
   console.log('[VoiceGreeting] Generating text with Claude...');
 

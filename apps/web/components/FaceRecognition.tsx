@@ -647,6 +647,7 @@ export default function FaceRecognition({
               person_name: formattedResult.person_name || "Unknown",
               linkedin_content: formattedResult.linkedin_content || undefined,
               discord_username: formattedResult.discord_username || undefined,
+              label: formattedResult.label || undefined,
             };
 
             console.log(

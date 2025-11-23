@@ -107,6 +107,7 @@ export async function fetchAndPlayGreeting(personData: {
   person_name: string;
   linkedin_content?: string;
   discord_username?: string;
+  label?: string;
 }): Promise<void> {
   try {
     // Check if audio is already playing before making the API call
