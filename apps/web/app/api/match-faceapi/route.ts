@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
           match_found: false,
           person_name: null,
           distance: null,
-          method: 'faceapi_local',
+          method: 'faceapi',
           threshold: 0.6,
           message: 'Please provide face_descriptor array in the request body'
         },
@@ -54,18 +54,18 @@ export async function POST(request: NextRequest) {
       .not('face_encoding_faceapi', 'is', null);
 
     if (error || !knownPeople || knownPeople.length === 0) {
-      console.log('[Face-API Local] No profiles with face-api embeddings found');
+      console.log('[Face-API] No profiles with face-api embeddings found');
       return NextResponse.json({
         match_found: false,
         person_name: null,
         distance: null,
-        method: 'faceapi_local',
+        method: 'faceapi',
         threshold,
         message: 'No profiles with local embeddings available'
       });
     }
 
-    console.log(`[Face-API Local] Comparing with ${knownPeople.length} profiles`);
+    console.log(`[Face-API] Comparing with ${knownPeople.length} profiles`);
 
     // Calcular distancias a todos los perfiles
     const candidates: Array<{
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     if (matchFound) {
       console.log(
-        `[Face-API Local] Match found: ${bestMatch.person.full_name} (distance: ${bestMatch.distance.toFixed(4)}, confidence: ${confidence})`
+        `[Face-API] Match found: ${bestMatch.person.full_name} (distance: ${bestMatch.distance.toFixed(4)}, confidence: ${confidence})`
       );
 
       return NextResponse.json({
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
         person_name: bestMatch.person.full_name,
         distance: bestMatch.distance,
         confidence,
-        method: 'faceapi_local',
+        method: 'faceapi',
         threshold,
         linkedin_content: bestMatch.person.linkedin_content,
         discord_username: bestMatch.person.discord_username,
@@ -139,20 +139,20 @@ export async function POST(request: NextRequest) {
           )})`
         : 'No matches found';
 
-      console.log(`[Face-API Local] No match. ${message}`);
+      console.log(`[Face-API] No match. ${message}`);
 
       return NextResponse.json({
         match_found: false,
         confidence,
         distance: bestMatch?.distance || null,
         candidates: topCandidates,
-        method: 'faceapi_local',
+        method: 'faceapi',
         threshold,
         message,
       });
     }
   } catch (error) {
-    console.error('[Face-API Local] Error:', error);
+    console.error('[Face-API] Error:', error);
 
     return NextResponse.json(
       {
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
         match_found: false,
         person_name: null,
         distance: null,
-        method: 'faceapi_local',
+        method: 'faceapi',
         threshold: 0.6,
         message: error instanceof Error ? error.message : 'Unknown error'
       },
