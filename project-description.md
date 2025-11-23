@@ -60,31 +60,6 @@ Estamos hablando de **accesibilidad cognitiva universal**.
 - Logs de interacciones y presencia
 - Alertas de personas de interés
 
-## El Futuro que Construimos
-
-El cerebro humano tiene **límites biológicos**. RecordAI rompe esos límites para que puedas enfocarte en lo que **realmente importa**: la persona que tienes enfrente.
-
-### Roadmap Técnico
-
-**Corto Plazo (3-6 meses):**
-- Integración con lentes inteligentes (AR glasses)
-- App móvil nativa con procesamiento on-device
-- Soporte para Raspberry Pi y dispositivos edge
-- Dashboard web para gestión de perfiles
-
-**Mediano Plazo (6-12 meses):**
-- Modelo multimodal: reconocimiento facial + voz + contexto
-- Embeddings de 1024D con modelos propios fine-tuneados
-- Búsqueda semántica: "encuentra al ingeniero de ML que conocí en el hackathon"
-- Integración con calendarios y CRMs para contexto automático
-
-**Largo Plazo (12+ meses):**
-- Plataforma de accesibilidad cognitiva completa
-- SDK para desarrolladores de hardware wearable
-- API pública para integraciones empresariales
-- Partnerships con instituciones de salud y centros geriátricos
-- Modelos locales para privacidad total (on-device processing)
-
 ### Impacto Social
 
 RecordAI no es solo tecnología, es **empatía aumentada**. Es devolverle dignidad a personas con deterioro cognitivo. Es hacer que los eventos de networking sean accesibles para personas con prosopagnosia. Es liberar tu mente de la carga de recordar nombres para que puedas enfocarte en conexiones genuinas.
