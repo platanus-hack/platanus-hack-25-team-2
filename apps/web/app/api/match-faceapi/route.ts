@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Obtener todas las personas conocidas con embedding de face-api
     const { data: knownPeople, error } = await supabase
       .from('known_people')
-      .select('id, full_name, face_encoding_faceapi, linkedin_content, discord_username')
+      .select('id, full_name, face_encoding_faceapi, linkedin_content, discord_username, photo_path')
       .not('face_encoding_faceapi', 'is', null);
 
     if (error || !knownPeople || knownPeople.length === 0) {
@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         match_found: true,
+        person_id: bestMatch.person.id,
         person_name: bestMatch.person.full_name,
         distance: bestMatch.distance,
         confidence,

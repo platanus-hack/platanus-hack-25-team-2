@@ -10,6 +10,8 @@
     "download-models": "tsx scripts/downloadModels.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.1",
+    "@elevenlabs/elevenlabs-js": "^2.25.0",
     "@supabase/supabase-js": "^2.84.0",
     "@vladmandic/face-api": "^1.7.15",
     "canvas": "^3.2.0",

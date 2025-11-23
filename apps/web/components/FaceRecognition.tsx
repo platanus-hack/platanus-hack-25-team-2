@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { FACE_RECOGNITION_METHOD, FACE_METHODS } from "@/lib/config";
+import { fetchAndPlayGreeting } from "@/lib/audioPlayer";
 
 interface FaceRecognitionProps {
   onPhotoCapture?: (photo: string) => void;
@@ -292,6 +293,7 @@ export default function FaceRecognition({
   const [cacheTimeRemaining, setCacheTimeRemaining] = useState<number>(0);
   const abortControllersRef = useRef<Record<string, AbortController>>({});
   const faceIdRef = useRef(0);
+  const greetedPersonsRef = useRef<Set<string>>(new Set());
 
   // Check for camera permissions
   useEffect(() => {
@@ -600,10 +602,37 @@ export default function FaceRecognition({
 
         // Actualizar cache de última persona identificada si hay match exitoso
         if (formattedResult.match_found) {
+          console.log('[FaceRecognition] ✅ Match found! Full result:', formattedResult);
+          
           setLastIdentifiedPerson({
             result: formattedResult,
             timestamp: Date.now(),
           });
+
+          // 🎤 Generate and play voice greeting for matched person (only once per person)
+          const personId = (formattedResult as any).person_id || formattedResult.person_name;
+          
+          if (personId && !greetedPersonsRef.current.has(personId)) {
+            const greetingData = {
+              person_id: personId,
+              person_name: formattedResult.person_name || 'Unknown',
+              linkedin_content: formattedResult.linkedin_content || undefined,
+              discord_username: formattedResult.discord_username || undefined,
+            };
+            
+            console.log('[FaceRecognition] 🎤 First time greeting for:', personId);
+            
+            // Mark as greeted immediately to prevent duplicates
+            greetedPersonsRef.current.add(personId);
+            
+            fetchAndPlayGreeting(greetingData).catch((error) => {
+              console.error('[FaceRecognition] ❌ Error playing greeting:', error);
+              // Remove from greeted set on error so it can be retried
+              greetedPersonsRef.current.delete(personId);
+            });
+          } else {
+            console.log('[FaceRecognition] ⏭️ Person already greeted, skipping voice generation');
+          }
         }
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
