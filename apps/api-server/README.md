@@ -2,6 +2,10 @@
 
 Servidor FastAPI para reconocimiento facial con integración con Supabase.
 
+**Modelo de reconocimiento facial:** DeepFace Facenet512 (512 dimensiones)
+
+El servidor usa DeepFace Facenet512 para calcular embeddings de 512 dimensiones, asegurando consistencia con los datos guardados en la base de datos.
+
 ## Instalación
 
 ```bash
@@ -26,9 +30,13 @@ uvicorn api_server:app --host 0.0.0.0 --port 8000
 
 ## Endpoints
 
-- `GET /` - Información de la API
+- `GET /` - Información de la API (incluye modelo usado: DeepFace Facenet512)
 - `GET /health` - Estado del servidor y conexión con Supabase
-- `POST /match` - Busca coincidencias faciales en la base de datos
+- `POST /match` - Busca coincidencias faciales en la base de datos usando DeepFace (512 dimensiones)
+  - **Parámetros:**
+    - `file`: Archivo de imagen (multipart/form-data)
+    - `threshold`: Umbral de coincidencia (default: 1.0 para Facenet512)
+  - **Nota:** La imagen enviada se procesa con DeepFace Facenet512 para calcular un embedding de 512 dimensiones, que se compara con los embeddings guardados en la columna `face_encoding` o `face_encoding_deepface_512` de la base de datos.
 
 ## Scripts de Utilidad
 
