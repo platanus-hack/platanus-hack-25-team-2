@@ -74,7 +74,7 @@ Entendemos que el reconocimiento facial es una tecnología sensible. Nuestros pr
 4. **Propósito social**: Enfocado en accesibilidad, no vigilancia
 5. **Control del usuario**: Borrado completo de datos bajo demanda
 
-## El Equipo
+## El Equipo 
 
 Somos un equipo multidisciplinario de ingenieros, diseñadores y visionarios que creen que la tecnología debe servir a las personas, no al revés.
 
