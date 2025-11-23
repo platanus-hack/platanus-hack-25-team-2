@@ -12,6 +12,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.70.1",
     "@elevenlabs/elevenlabs-js": "^2.25.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.0",
     "@supabase/supabase-js": "^2.84.0",
     "@vladmandic/face-api": "^1.7.15",
     "canvas": "^3.2.0",
@@ -24,13 +26,15 @@
     "react-dom": "19.2.0",
     "react-webcam": "^7.2.0",
     "sharp": "^0.34.5",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "three": "^0.181.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.181.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "tailwindcss": "^4",
