@@ -1,0 +1,149 @@
+[
+  {
+    "username": "HechoEnChile",
+    "linkedin_url": "https://www.linkedin.com/in/agust%C3%ADn-ar%C3%A9valo-487878332",
+    "scraped_at": "2025-11-22 11:28:50",
+    "name": "Agustín Arévalo",
+    "headline": "Estudiante de Física UC | Fundador de empresa TI | IA & Desarrollo Full-Stack | Bombero operativo | Scout | Fundador & Presidente Club de Cohetería UC | Investigación en Computación Cuántica",
+    "location": "Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHcHwzDyHKufQ/profile-displayphoto-scale_200_200/B4EZmgFN1vGoAc-/0/1759327348076?e=1765411200&v=beta&t=RNN4pVsSl6a-Ibu9YMPC1EXtdZDO-MaHYX7rYooYMSQ",
+    "about": null,
+    "experience": [
+      {
+        "title": "Gerente general",
+        "company": "Komos SpA"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Bachelor's degree, Física"
+      },
+      {
+        "school": "Colegio Alemán de Los Ángeles",
+        "degree": "nov. 2024"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "diieggo",
+    "linkedin_url": "https://www.linkedin.com/in/diego-huaccha-diestra",
+    "scraped_at": "2025-11-22 11:29:07",
+    "name": "Diego Huaccha Diestra",
+    "headline": "Co-Founder & CTO | Building AI Solutions",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHM12D3gPB3qg/profile-displayphoto-shrink_200_200/B4EZNw32K9H0AY-/0/1732765510578?e=1765411200&v=beta&t=Zg1bC9NnuPAs58U6aj2nkCilB75uOYfEBMYZvAbfKRs",
+    "about": null,
+    "experience": [
+      {
+        "title": "Co-Founder & CTO",
+        "company": "Stealth AI Startup · Jornada completa"
+      },
+      {
+        "title": "Co-Founder",
+        "company": "Zpend AI · Jornada parcial"
+      },
+      {
+        "title": "Software Engineer",
+        "company": "HD Conta · Jornada parcial"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería, Computer Software Engineering"
+      },
+      {
+        "school": "Instituto Nacional General José Miguel Carrera",
+        "degree": "mar. 2018 - nov. 2023"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "javierdv7",
+    "linkedin_url": "https://www.linkedin.com/in/javierdvt",
+    "scraped_at": "2025-11-22 11:29:25",
+    "name": "Javier Vargas",
+    "headline": "18yo | Founder & CTO @ Logos",
+    "location": "Área metropolitana de Santiago",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQHu7TTTXK8XLg/profile-displayphoto-scale_200_200/B4EZqUT54hHUAY-/0/1763424839061?e=1765411200&v=beta&t=ihWQpITS-LRxelVb2nBrPKUy-Zy0NSbbD2gTRmRktI4",
+    "about": null,
+    "experience": [
+      {
+        "title": "Logos",
+        "company": "Jornada completa · 9 meses"
+      },
+      {
+        "title": "UNITE",
+        "company": "Autónomo · 8 meses"
+      },
+      {
+        "title": "Ingeniero de software",
+        "company": "TALES Elek · Jornada completa"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Licenciatura"
+      },
+      {
+        "school": "Platzi",
+        "degree": "jul. 2025 - jul. 2026"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "munonzito",
+    "linkedin_url": "https://www.linkedin.com/in/munoncode",
+    "scraped_at": "2025-11-22 11:29:45",
+    "name": "Martín Muñoz",
+    "headline": "Writing about Software and Content Creation",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4E03AQEJqguCBbESuQ/profile-displayphoto-scale_200_200/B4EZnP3h4cIIAY-/0/1760129066867?e=1765411200&v=beta&t=U3KI85MNMvk2vHg58ZCibftRAzAiGK1ma4oUZhDDH94",
+    "about": null,
+    "experience": [
+      {
+        "title": "Director de tecnología de la información",
+        "company": "Preu AI · Autónomo"
+      },
+      {
+        "title": "Propietario",
+        "company": "Munon Technologies · Autónomo"
+      }
+    ],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería, Ingeniería industrial"
+      }
+    ],
+    "skills": [],
+    "error": null
+  },
+  {
+    "username": "shesxoo",
+    "linkedin_url": "https://www.linkedin.com/in/sergiosalinas-",
+    "scraped_at": "2025-11-22 11:30:07",
+    "name": "Sergio Salinas",
+    "headline": "Estudiante en Pontificia Universidad Católica de Chile",
+    "location": "Gran Santiago, Región Metropolitana de Santiago, Chile",
+    "profile_image_url": "https://media.licdn.com/dms/image/v2/D4D03AQF1KGR5q9JoHQ/profile-displayphoto-scale_200_200/B4DZomnlIcH4AY-/0/1761584503095?e=1765411200&v=beta&t=o9oTEWQLzc3_a-zYV1Iga0UIH8QTZ1tYQqeo65bbcSM",
+    "about": null,
+    "experience": [],
+    "education": [
+      {
+        "school": "Pontificia Universidad Católica de Chile",
+        "degree": "Ingeniería Civil, Electrica"
+      }
+    ],
+    "skills": [],
+    "error": null
+  }
+]

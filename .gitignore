@@ -1,0 +1,20 @@
+# Subfolders to ignore
+social_agent_hf/
+social_agent_web/
+platanus-hack-25-team-2/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# OS
+.DS_Store
