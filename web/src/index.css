@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=VT323&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --border: 0 0% 89.8%;
+    
+    /* Terminal-specific CSS variables */
+    --terminal-black: #050505;
+    --terminal-phosphor: #00ff41;
+    --terminal-phosphor-dim: #00cc33;
+    --terminal-amber: #ffb000;
+    --terminal-amber-dim: #cc8800;
+    --terminal-muted: #333333;
+    --terminal-muted-dim: #1a1a1a;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --border: 0 0% 14.9%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-terminal-black text-terminal-phosphor font-mono;
+    /* Remove default margin and padding */
+    margin: 0;
+    padding: 0;
+    /* Smooth scrolling for better UX */
+    scroll-behavior: smooth;
+  }
+}
+
+/* Terminal-specific utility classes */
+@layer components {
+  .terminal-screen {
+    @apply bg-terminal-black text-terminal-phosphor font-mono;
+  }
+  
+  .terminal-text-glow {
+    text-shadow: 0 0 5px currentColor;
+  }
+  
+  .terminal-text-glow-strong {
+    text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  }
+  
+  .terminal-border {
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+  }
+  
+  .terminal-button {
+    @apply bg-transparent border border-terminal-phosphor text-terminal-phosphor px-4 py-2 font-mono;
+    @apply hover:bg-terminal-phosphor hover:text-terminal-black transition-all duration-200;
+    @apply hover:shadow-lg hover:shadow-terminal-phosphor/20;
+    text-shadow: 0 0 5px currentColor;
+  }
+  
+  .terminal-input {
+    @apply bg-terminal-black border border-terminal-muted text-terminal-phosphor placeholder-terminal-muted;
+    @apply focus:border-terminal-phosphor focus:outline-none focus:ring-1 focus:ring-terminal-phosphor;
+    @apply font-mono px-3 py-2;
+    text-shadow: 0 0 3px currentColor;
+  }
+  
+  /* Amber variant for secondary elements */
+  .terminal-amber {
+    @apply text-terminal-amber;
+  }
+  
+  .terminal-amber-glow {
+    color: #ffb000;
+    text-shadow: 0 0 5px #ffb000, 0 0 10px #ffb000;
+  }
+}
+
+/* Global terminal animations */
+@layer utilities {
+  .animate-flicker {
+    animation: flicker 0.15s infinite linear alternate;
+  }
+  
+  .animate-blink {
+    animation: blink 1s infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s infinite;
+  }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  100% { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    text-shadow: 0 0 5px currentColor; 
+  }
+  50% { 
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; 
+  }
+}
+
+/* Scrollbar styling for terminal aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--terminal-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--terminal-phosphor);
+  border-radius: 4px;
+  opacity: 0.7;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--terminal-phosphor);
+  opacity: 1;
+}
+
+/* Carousel fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Fade in up animation for staggered elements */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
