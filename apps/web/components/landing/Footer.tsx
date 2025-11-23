@@ -32,7 +32,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-xl font-bold mb-4 tracking-wider">
+            <h3 className="text-xl font-bold mb-4 tracking-wider text-white">
               [ RECORD<span className="text-gray-500">.AI</span> ]
             </h3>
             <div className="text-gray-400 text-xs mb-2">
