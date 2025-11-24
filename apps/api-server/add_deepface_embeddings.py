@@ -16,16 +16,21 @@ from deepface import DeepFace
 from supabase import create_client, Client
 import numpy as np
 
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
+
 # Configuración de Supabase
-SUPABASE_URL = "https://zgvntpcrofqtmuktrqjs.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpndm50cGNyb2ZxdG11a3RycWpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3ODAwODgsImV4cCI6MjA3OTM1NjA4OH0.EqWHH-K3358RN5YDpAgB1oprDzf6yZzzhoTg2e6YodA"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
 
 # Modelo a usar (puedes cambiar entre: Facenet512, ArcFace, etc.)
 MODEL_NAME = "Facenet512"  # Genera embeddings de 512 dimensiones
 EMBEDDING_COLUMN = "face_encoding_deepface_512"  # Nueva columna en la DB
 
-if not SUPABASE_KEY:
-    print("Error: La variable de entorno SUPABASE_SERVICE_ROLE_KEY no está configurada.")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("Error: Las variables SUPABASE_URL y SUPABASE_KEY (o SUPABASE_SERVICE_ROLE_KEY) deben estar configuradas en el archivo .env")
     exit(1)
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)

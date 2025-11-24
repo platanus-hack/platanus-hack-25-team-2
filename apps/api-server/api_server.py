@@ -8,6 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
 from PIL import Image
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 # DeepFace para embeddings de 512 dimensiones (Facenet512)
 try:
@@ -19,8 +23,11 @@ except ImportError:
     print("   Instalar: pip install deepface")
 
 # Configuración de Supabase
-SUPABASE_URL = "https://zgvntpcrofqtmuktrqjs.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpndm50cGNyb2ZxdG11a3RycWpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3ODAwODgsImV4cCI6MjA3OTM1NjA4OH0.EqWHH-K3358RN5YDpAgB1oprDzf6yZzzhoTg2e6YodA"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("SUPABASE_URL y SUPABASE_KEY deben estar configuradas en el archivo .env")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 

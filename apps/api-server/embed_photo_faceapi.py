@@ -27,7 +27,8 @@ def calculate_faceapi_embedding(image_path):
         embedding = encodings[0]
         print(f"✅ Embedding calculado: {len(embedding)} dimensiones")
         
-        return embedding.tolist()
+        # Convertir números a strings con comillas
+        return [str(value) for value in embedding.tolist()]
         
     except Exception as e:
         print(f"❌ Error al calcular embedding: {e}")
@@ -66,9 +67,11 @@ def main():
     print(f"Dimensiones: {len(embedding)}")
     print(f"Primeros 10 valores: {embedding[:10]}")
     print(f"Últimos 10 valores: {embedding[-10:]}")
-    print(f"Valor mínimo: {min(embedding):.6f}")
-    print(f"Valor máximo: {max(embedding):.6f}")
-    print(f"Valor promedio: {sum(embedding)/len(embedding):.6f}")
+    # Convertir temporalmente a float para estadísticas
+    embedding_floats = [float(v) for v in embedding]
+    print(f"Valor mínimo: {min(embedding_floats):.6f}")
+    print(f"Valor máximo: {max(embedding_floats):.6f}")
+    print(f"Valor promedio: {sum(embedding_floats)/len(embedding_floats):.6f}")
     
     # Guardar en archivo JSON
     output_file = Path(image_path).stem + "_faceapi_embedding.json"

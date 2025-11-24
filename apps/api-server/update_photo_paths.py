@@ -7,14 +7,17 @@ Lee el JSON actualizado y actualiza cada perfil en la DB
 import os
 import json
 from supabase import create_client, Client
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 # Configuración de Supabase
-SUPABASE_URL = "https://zgvntpcrofqtmuktrqjs.supabase.co"
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
 
-if not SUPABASE_KEY:
-    print("❌ Error: La variable de entorno SUPABASE_SERVICE_ROLE_KEY no está configurada.")
-    print("Por favor, ejecuta: export SUPABASE_SERVICE_ROLE_KEY='tu_clave_service_role'")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("❌ Error: Las variables SUPABASE_URL y SUPABASE_KEY (o SUPABASE_SERVICE_ROLE_KEY) deben estar configuradas en el archivo .env")
     exit(1)
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
